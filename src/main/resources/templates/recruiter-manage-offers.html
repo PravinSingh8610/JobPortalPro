@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Manage Job Offers | JobPortalPro</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <style>
+        body {
+            background: #f1f5f9;
+            font-family: 'Segoe UI', sans-serif;
+            color: #0f172a;
+        }
+
+        .navbar {
+            background: #0f172a;
+        }
+
+        .page-title {
+            font-weight: 800;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.04);
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: 6px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 18px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+        }
+
+        .table thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-accepted {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-expired {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .empty-state {
+            padding: 55px 20px;
+            text-align: center;
+        }
+
+        .btn-download {
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 15px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-download:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark px-4 py-3">
+
+    <a class="navbar-brand fw-bold"
+       th:href="@{/recruiter/dashboard}">
+        JobPortalPro
+    </a>
+
+    <a class="btn btn-outline-light"
+       th:href="@{/recruiter/jobs/{jobId}/interviews(jobId=${jobId})}">
+        Back to Interviews
+    </a>
+
+</nav>
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <h2 class="page-title">Manage Job Offers</h2>
+
+        <p class="text-muted">
+            Track issued job offers and candidate responses.
+        </p>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Total Offers</div>
+
+                <div class="stat-value"
+                     th:text="${offers != null ? #lists.size(offers) : 0}">
+                    0
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Pending</div>
+
+                <div class="stat-value text-warning"
+                     th:text="${offers != null ? offers.?[status == 'PENDING'].size() : 0}">
+                    0
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Accepted</div>
+
+                <div class="stat-value text-success"
+                     th:text="${offers != null ? offers.?[status == 'ACCEPTED'].size() : 0}">
+                    0
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Rejected</div>
+
+                <div class="stat-value text-danger"
+                     th:text="${offers != null ? offers.?[status == 'REJECTED'].size() : 0}">
+                    0
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- OFFERS TABLE -->
+    <div class="table-card">
+
+        <h5 class="fw-bold mb-4">Issued Offers</h5>
+
+        <!-- EMPTY STATE -->
+        <div th:if="${offers == null or #lists.isEmpty(offers)}"
+             class="empty-state">
+
+            <h5 class="fw-bold">No Offers Issued Yet</h5>
+
+            <p class="text-muted">
+                Once you issue an offer to a selected candidate,
+                it will appear here.
+            </p>
+
+            <a th:href="@{/recruiter/jobs/{jobId}/interviews(jobId=${jobId})}"
+               class="btn btn-primary">
+                View Interviews
+            </a>
+
+        </div>
+
+        <!-- OFFERS TABLE DATA -->
+        <div th:if="${offers != null and !#lists.isEmpty(offers)}"
+             class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Candidate</th>
+                        <th>Designation</th>
+                        <th>Annual Salary</th>
+                        <th>Joining Date</th>
+                        <th>Expiry Date</th>
+                        <th>Offer Status</th>
+                        <th>Issued On</th>
+                        <th>Responded On</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="offer : ${offers}">
+
+                        <!-- CANDIDATE DETAILS -->
+                        <td>
+                            <div class="fw-bold"
+                                 th:text="${offer.interview.application.candidate.fullName}">
+                                Candidate Name
+                            </div>
+
+                            <small class="text-muted"
+                                   th:text="${offer.interview.application.candidate.email}">
+                                candidate@example.com
+                            </small>
+                        </td>
+
+                        <!-- DESIGNATION -->
+                        <td th:text="${offer.designation}">
+                            Java Developer
+                        </td>
+
+                        <!-- SALARY -->
+                        <td class="fw-bold text-success"
+                            th:text="|₹ ${offer.offeredSalary}|">
+                            ₹ 600000
+                        </td>
+
+                        <!-- JOINING DATE -->
+                        <td th:text="${#temporals.format(
+                            offer.joiningDate, 'dd MMM yyyy')}">
+                            01 Dec 2026
+                        </td>
+
+                        <!-- EXPIRY DATE -->
+                        <td th:text="${#temporals.format(
+                            offer.offerExpiryDate, 'dd MMM yyyy')}">
+                            15 Nov 2026
+                        </td>
+
+                        <!-- OFFER STATUS -->
+                        <td>
+                            <span class="status-badge"
+                                  th:with="expired=${offer.status == 'PENDING'
+                                      and offer.offerExpiryDate.isBefore(T(java.time.LocalDate).now())}"
+                                  th:classappend="${expired ? 'status-expired'
+                                      : (offer.status == 'ACCEPTED' ? 'status-accepted'
+                                      : (offer.status == 'REJECTED' ? 'status-rejected'
+                                      : (offer.status == 'EXPIRED' ? 'status-expired'
+                                      : 'status-pending')))}"
+                                  th:text="${expired ? 'EXPIRED' : offer.status}">
+                                PENDING
+                            </span>
+                        </td>
+
+                        <!-- ISSUED DATE -->
+                        <td th:text="${#temporals.format(
+                            offer.createdAt, 'dd MMM yyyy')}">
+                            26 Oct 2026
+                        </td>
+
+                        <!-- RESPONSE DATE -->
+                        <td th:text="${offer.respondedAt != null
+                            ? #temporals.format(offer.respondedAt, 'dd MMM yyyy')
+                            : 'Not Responded'}">
+                            Not Responded
+                        </td>
+
+                        <!-- DOWNLOAD OFFER LETTER PDF -->
+                        <td>
+                            <a th:href="@{/recruiter/jobs/{jobId}/offers/{offerId}/download(
+                                    jobId=${jobId},
+                                    offerId=${offer.id})}"
+                               class="btn-download">
+                                Download PDF
+                            </a>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

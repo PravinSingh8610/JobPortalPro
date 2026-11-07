@@ -1,0 +1,613 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Interview Management | JobPortalPro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f7fc;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .sidebar {
+            width: 255px;
+            min-height: 100vh;
+            background: #172554;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 25px 15px;
+        }
+
+        .brand {
+            font-size: 23px;
+            font-weight: 800;
+            margin-bottom: 35px;
+            padding-left: 12px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 15px;
+            margin-bottom: 7px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: .2s;
+        }
+
+        .menu-link:hover,
+        .menu-link.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .main {
+            margin-left: 255px;
+            padding: 32px;
+        }
+
+        .page-header {
+            background: linear-gradient(120deg,
+                #1e3a8a, #2563eb);
+            color: white;
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card,
+        .table-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 5px 25px rgba(0,0,0,.05);
+            padding: 24px;
+            margin-bottom: 22px;
+        }
+
+        .summary-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1d4ed8;
+        }
+
+        .table thead th {
+            background: #eff6ff;
+            color: #1e3a8a;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .table td {
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 6px 11px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge-scheduled {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-completed,
+        .badge-selected {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-cancelled,
+        .badge-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-pending,
+        .badge-hold {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .modal-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .modal-value {
+            font-weight: 600;
+            margin-bottom: 16px;
+            overflow-wrap: anywhere;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                min-height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+    <div class="brand">
+        <i class="bi bi-briefcase-fill"></i>
+        JobPortalPro
+    </div>
+
+    <a th:href="@{/admin/dashboard}"
+       target="_blank" rel="noopener"
+       class="menu-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+
+    <a th:href="@{/admin/candidates}"
+       target="_blank" rel="noopener"
+       class="menu-link">
+        <i class="bi bi-people"></i>
+        Candidates
+    </a>
+
+    <a th:href="@{/admin/recruiters}"
+       target="_blank" rel="noopener"
+       class="menu-link">
+        <i class="bi bi-building"></i>
+        Recruiters
+    </a>
+
+    <a th:href="@{/admin/jobs}"
+       target="_blank" rel="noopener"
+       class="menu-link">
+        <i class="bi bi-briefcase"></i>
+        Jobs
+    </a>
+
+    <a th:href="@{/admin/applications}"
+       target="_blank" rel="noopener"
+       class="menu-link">
+        <i class="bi bi-file-earmark-person"></i>
+        Applications
+    </a>
+
+    <a th:href="@{/admin/interviews}"
+       target="_blank" rel="noopener"
+       class="menu-link active">
+        <i class="bi bi-camera-video"></i>
+        Interviews
+    </a>
+
+    <hr>
+
+    <form th:action="@{/logout}" method="post">
+        <button type="submit"
+                class="btn btn-outline-light w-100">
+            <i class="bi bi-box-arrow-right"></i>
+            Logout
+        </button>
+    </form>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+    <div class="page-header">
+        <h2 class="fw-bold mb-2">
+            <i class="bi bi-camera-video"></i>
+            Interview Management
+        </h2>
+
+        <p class="mb-0">
+            Monitor all candidate interviews across companies.
+        </p>
+
+        <small class="d-block mt-3">
+            Logged in as:
+            <span th:text="${adminEmail}">admin@example.com</span>
+        </small>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-card">
+        <div class="text-muted fw-semibold">
+            Total Interviews
+        </div>
+
+        <div class="summary-number"
+             th:text="${totalInterviews}">
+            0
+        </div>
+
+        <small class="text-muted">
+            All interview records in the platform
+        </small>
+    </div>
+
+    <!-- INTERVIEW TABLE -->
+    <div class="table-card">
+
+        <div class="d-flex flex-wrap justify-content-between
+                    align-items-center gap-3 mb-4">
+
+            <h5 class="fw-bold mb-0">
+                All Interviews
+            </h5>
+
+            <div class="d-flex flex-wrap gap-2">
+
+                <input type="search"
+                       id="searchInput"
+                       class="form-control"
+                       placeholder="Search candidate, job, company..."
+                       style="min-width: 240px;">
+
+                <select id="statusFilter"
+                        class="form-select"
+                        style="width: 160px;">
+                    <option value="">All Status</option>
+                    <option value="SCHEDULED">Scheduled</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+
+                <select id="resultFilter"
+                        class="form-select"
+                        style="width: 160px;">
+                    <option value="">All Results</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="SELECTED">Selected</option>
+                    <option value="REJECTED">Rejected</option>
+                    <option value="ON_HOLD">On Hold</option>
+                </select>
+
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle"
+                   id="interviewTable">
+
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Candidate</th>
+                    <th>Job</th>
+                    <th>Company</th>
+                    <th>Date & Time</th>
+                    <th>Mode</th>
+                    <th>Status</th>
+                    <th>Result</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="interview : ${interviews}"
+                    class="interview-row"
+                    th:attr="data-status=${interview.status},
+                             data-result=${interview.result == null ? 'PENDING' : interview.result}">
+
+                    <td th:text="${interview.id}">1</td>
+
+                    <td>
+                        <strong th:text="${interview.application.candidate.fullName}">
+                            Candidate
+                        </strong>
+
+                        <div class="text-muted small"
+                             th:text="${interview.application.candidate.email}">
+                            email@example.com
+                        </div>
+                    </td>
+
+                    <td th:text="${interview.application.job.title}">
+                        Java Developer
+                    </td>
+
+                    <td th:text="${interview.application.job.company.companyName}">
+                        Company
+                    </td>
+
+                    <td th:text="${#temporals.format(
+                        interview.interviewDateTime,
+                        'dd MMM yyyy, hh:mm a')}">
+                        Interview Date
+                    </td>
+
+                    <td th:text="${interview.interviewMode}">
+                        ONLINE
+                    </td>
+
+                    <td>
+                        <span class="status-badge"
+                              th:classappend="${
+                                  interview.status == 'SCHEDULED'
+                                  ? 'badge-scheduled'
+                                  : (interview.status == 'COMPLETED'
+                                  ? 'badge-completed'
+                                  : (interview.status == 'CANCELLED'
+                                  ? 'badge-cancelled'
+                                  : 'badge-pending'))}"
+                              th:text="${interview.status}">
+                            SCHEDULED
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="status-badge"
+                              th:classappend="${
+                                  interview.result == 'SELECTED'
+                                  ? 'badge-selected'
+                                  : (interview.result == 'REJECTED'
+                                  ? 'badge-rejected'
+                                  : (interview.result == 'ON_HOLD'
+                                  ? 'badge-hold'
+                                  : 'badge-pending'))}"
+                              th:text="${interview.result == null
+                                  ? 'PENDING'
+                                  : interview.result}">
+                            PENDING
+                        </span>
+                    </td>
+
+                    <td>
+                        <button type="button"
+                                class="btn btn-sm btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#detailsModal"
+                                th:attr="data-id=${interview.id},
+                                    data-candidate=${interview.application.candidate.fullName},
+                                    data-email=${interview.application.candidate.email},
+                                    data-job=${interview.application.job.title},
+                                    data-company=${interview.application.job.company.companyName},
+                                    data-date=${#temporals.format(interview.interviewDateTime, 'dd MMM yyyy, hh:mm a')},
+                                    data-mode=${interview.interviewMode},
+                                    data-status=${interview.status},
+                                    data-result=${interview.result == null ? 'PENDING' : interview.result},
+                                    data-location=${interview.interviewLocation},
+                                    data-link=${interview.meetingLink},
+                                    data-notes=${interview.notes},
+                                    data-feedback=${interview.feedback}">
+                            <i class="bi bi-eye"></i>
+                            View
+                        </button>
+                    </td>
+
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(interviews)}">
+                    <td colspan="9"
+                        class="text-center text-muted py-5">
+                        No interview records found.
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <p id="noFilterResults"
+           class="text-center text-muted py-3 d-none">
+            No interviews match your search or filters.
+        </p>
+
+    </div>
+
+</main>
+
+<!-- INTERVIEW DETAILS MODAL -->
+<div class="modal fade"
+     id="detailsModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">
+                    Interview Details
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <div class="modal-label">Interview ID</div>
+                        <div class="modal-value" id="detailId"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="modal-label">Candidate</div>
+                        <div class="modal-value" id="detailCandidate"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="modal-label">Email</div>
+                        <div class="modal-value" id="detailEmail"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="modal-label">Job</div>
+                        <div class="modal-value" id="detailJob"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="modal-label">Company</div>
+                        <div class="modal-value" id="detailCompany"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="modal-label">Interview Date</div>
+                        <div class="modal-value" id="detailDate"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="modal-label">Interview Mode</div>
+                        <div class="modal-value" id="detailMode"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="modal-label">Status</div>
+                        <div class="modal-value" id="detailStatus"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="modal-label">Result</div>
+                        <div class="modal-value" id="detailResult"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="modal-label">Location</div>
+                        <div class="modal-value" id="detailLocation"></div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="modal-label">Meeting Link</div>
+                        <div class="modal-value" id="detailLink"></div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="modal-label">Interview Notes</div>
+                        <div class="modal-value" id="detailNotes"></div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="modal-label">Recruiter Feedback</div>
+                        <div class="modal-value" id="detailFeedback"></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // SEARCH AND FILTER
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const resultFilter = document.getElementById("resultFilter");
+
+    function filterInterviews() {
+        const query = searchInput.value.toLowerCase().trim();
+        const status = statusFilter.value;
+        const result = resultFilter.value;
+
+        const rows = document.querySelectorAll(".interview-row");
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const searchableText = row.textContent.toLowerCase();
+
+            const matchesSearch = searchableText.includes(query);
+            const matchesStatus =
+                !status || row.dataset.status === status;
+            const matchesResult =
+                !result || row.dataset.result === result;
+
+            const visible =
+                matchesSearch && matchesStatus && matchesResult;
+
+            row.style.display = visible ? "" : "none";
+
+            if (visible) {
+                visibleCount++;
+            }
+        });
+
+        document.getElementById("noFilterResults")
+            .classList.toggle(
+                "d-none",
+                visibleCount > 0 || rows.length === 0
+            );
+    }
+
+    searchInput.addEventListener("input", filterInterviews);
+    statusFilter.addEventListener("change", filterInterviews);
+    resultFilter.addEventListener("change", filterInterviews);
+
+    // VIEW DETAILS MODAL
+    const detailsModal = document.getElementById("detailsModal");
+
+    detailsModal.addEventListener("show.bs.modal", function(event) {
+        const button = event.relatedTarget;
+
+        const fields = {
+            detailId: "id",
+            detailCandidate: "candidate",
+            detailEmail: "email",
+            detailJob: "job",
+            detailCompany: "company",
+            detailDate: "date",
+            detailMode: "mode",
+            detailStatus: "status",
+            detailResult: "result",
+            detailLocation: "location",
+            detailLink: "link",
+            detailNotes: "notes",
+            detailFeedback: "feedback"
+        };
+
+        Object.entries(fields).forEach(([elementId, dataKey]) => {
+            const value = button.dataset[dataKey];
+
+            document.getElementById(elementId).textContent =
+                value && value.trim() ? value : "N/A";
+        });
+    });
+</script>
+
+</body>
+</html>

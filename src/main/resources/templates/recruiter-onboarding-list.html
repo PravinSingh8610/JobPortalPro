@@ -1,0 +1,374 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Onboarding Management | JobPortalPro</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <style>
+        body {
+            background: #f1f5f9;
+            font-family: 'Segoe UI', sans-serif;
+            color: #0f172a;
+        }
+
+        .navbar {
+            background: #0f172a;
+        }
+
+        .page-title {
+            font-weight: 800;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 8px 25px rgba(15,23,42,0.05);
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            height: 100%;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .review {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .candidate-name {
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark px-4 py-3">
+
+    <a class="navbar-brand fw-bold"
+       th:href="@{/recruiter/dashboard}">
+        JobPortalPro
+    </a>
+
+    <a class="btn btn-outline-light"
+       th:href="@{/recruiter/dashboard}">
+        Recruiter Dashboard
+    </a>
+
+</nav>
+
+<div class="container py-5">
+
+    <!-- PAGE HEADING -->
+    <div class="mb-4">
+        <h2 class="page-title">
+            Onboarding Management
+        </h2>
+
+        <p class="text-muted">
+            Manage and verify candidates joining your company.
+        </p>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">
+                    Total Onboardings
+                </div>
+
+                <div class="stat-value"
+                     th:text="${#lists.size(onboardings)}">
+                    0
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">
+                    Under Review
+                </div>
+
+                <div class="stat-value text-primary"
+                     th:text="${#lists.size(onboardings.?[status == 'UNDER_REVIEW'])}">
+                    0
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">
+                    Approved
+                </div>
+
+                <div class="stat-value text-success"
+                     th:text="${#lists.size(onboardings.?[status == 'APPROVED'])}">
+                    0
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">
+                    Rejected
+                </div>
+
+                <div class="stat-value text-danger"
+                     th:text="${#lists.size(onboardings.?[status == 'REJECTED'])}">
+                    0
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CANDIDATE TABLE -->
+    <div class="dashboard-card">
+
+        <div class="d-flex justify-content-between
+                    align-items-center flex-wrap gap-3 mb-3">
+
+            <h4 class="fw-bold mb-0">
+                Candidate Onboarding Records
+            </h4>
+
+            <input type="text"
+                   id="candidateSearch"
+                   class="form-control"
+                   style="max-width:260px;"
+                   placeholder="Search candidates..."
+                   oninput="filterCandidates()">
+
+        </div>
+
+        <!-- STATUS FILTER -->
+        <div class="mb-3">
+            <select id="statusFilter"
+                    class="form-select"
+                    style="max-width:230px;"
+                    onchange="filterCandidates()">
+
+                <option value="">All Statuses</option>
+                <option value="PENDING">Pending</option>
+                <option value="UNDER_REVIEW">Under Review</option>
+                <option value="APPROVED">Approved</option>
+                <option value="REJECTED">Rejected</option>
+
+            </select>
+        </div>
+
+        <div th:if="${#lists.isEmpty(onboardings)}"
+             class="alert alert-info">
+            No onboarding records found for your company.
+        </div>
+
+        <div th:unless="${#lists.isEmpty(onboardings)}"
+             class="table-responsive">
+
+            <table class="table table-hover align-middle"
+                   id="onboardingTable">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Candidate</th>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Joining Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="onboarding : ${onboardings}"
+                        class="candidate-row">
+
+                        <!-- CANDIDATE NAME -->
+                        <td class="candidate-name"
+                            th:text="${onboarding.jobOffer.interview.application.candidate.fullName}">
+                            Candidate Name
+                        </td>
+
+                        <!-- JOB TITLE -->
+                        <td th:text="${onboarding.jobOffer.interview.application.job.title}">
+                            Job Title
+                        </td>
+
+                        <!-- COMPANY -->
+                        <td th:text="${onboarding.jobOffer.interview.application.job.company.companyName}">
+                            Company Name
+                        </td>
+
+                        <!-- JOINING DATE -->
+                        <td th:text="${#temporals.format(
+                            onboarding.jobOffer.joiningDate,
+                            'dd MMM yyyy')}">
+                            Joining Date
+                        </td>
+
+                        <!-- STATUS -->
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${onboarding.status == 'APPROVED'
+                                      ? 'approved'
+                                      : (onboarding.status == 'REJECTED'
+                                      ? 'rejected'
+                                      : (onboarding.status == 'UNDER_REVIEW'
+                                      ? 'review' : 'pending'))}"
+                                  th:text="${onboarding.status}">
+                                PENDING
+                            </span>
+                        </td>
+
+                        <!-- VIEW DOCUMENTS -->
+                        <td>
+                            <a class="btn btn-primary btn-sm"
+                               th:href="@{/recruiter/onboarding/{id}(
+                                   id=${onboarding.id})}">
+                                View Documents
+                            </a>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <p id="noSearchResults"
+               class="text-muted mt-3 d-none">
+                No candidates match your search or filter.
+            </p>
+
+        </div>
+    </div>
+
+    <!-- BACK BUTTON -->
+    <a th:href="@{/recruiter/dashboard}"
+       class="btn btn-outline-primary">
+        Back to Recruiter Dashboard
+    </a>
+
+</div>
+
+<script>
+    function filterCandidates() {
+
+        const search = document.getElementById(
+            "candidateSearch"
+        ).value.toLowerCase().trim();
+
+        const status = document.getElementById(
+            "statusFilter"
+        ).value;
+
+        const rows = document.querySelectorAll(
+            "#onboardingTable .candidate-row"
+        );
+
+        let visibleCount = 0;
+
+        rows.forEach(function(row) {
+
+            const candidateText =
+                row.cells[0].textContent.toLowerCase();
+
+            const jobText =
+                row.cells[1].textContent.toLowerCase();
+
+            const companyText =
+                row.cells[2].textContent.toLowerCase();
+
+            const rowStatus =
+                row.cells[4].textContent.trim();
+
+            const matchesSearch =
+                candidateText.includes(search) ||
+                jobText.includes(search) ||
+                companyText.includes(search);
+
+            const matchesStatus =
+                status === "" || rowStatus === status;
+
+            const visible = matchesSearch && matchesStatus;
+
+            row.style.display = visible ? "" : "none";
+
+            if (visible) {
+                visibleCount++;
+            }
+        });
+
+        const noResults = document.getElementById(
+            "noSearchResults"
+        );
+
+        if (noResults) {
+            noResults.classList.toggle(
+                "d-none",
+                visibleCount !== 0
+            );
+        }
+    }
+</script>
+
+</body>
+</html>

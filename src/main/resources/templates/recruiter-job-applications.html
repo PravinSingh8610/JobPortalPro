@@ -1,0 +1,557 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Received Applications | JobPortalPro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f1f5f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .navbar {
+            background: #0f172a;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .applicant-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 22px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .candidate-name {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .page-heading {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            align-items: center;
+        }
+
+        .resume-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+        }
+
+        .resume-btn:hover {
+            background: #4338ca;
+            color: white;
+        }
+
+        .interview-btn {
+            background: #0284c7;
+            color: white;
+            border: none;
+        }
+
+        .interview-btn:hover {
+            background: #0369a1;
+            color: white;
+        }
+
+        .decision-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 22px;
+            border-radius: 12px;
+            margin-top: 22px;
+        }
+
+        .decision-heading {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .decision-badge {
+            font-size: 14px;
+            padding: 8px 13px;
+        }
+
+        .decision-submit {
+            background: #0f766e;
+            color: white;
+            border: none;
+        }
+
+        .decision-submit:hover {
+            background: #115e59;
+            color: white;
+        }
+
+        .feedback-box {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .resume-info {
+            font-size: 13px;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-dark px-4 py-3">
+
+        <a class="navbar-brand fw-bold"
+           th:href="@{/recruiter/dashboard}">
+            JobPortalPro
+        </a>
+
+        <a class="btn btn-outline-light"
+           th:href="@{/recruiter/jobs}">
+            Manage Jobs
+        </a>
+
+    </nav>
+
+    <div class="container py-5">
+
+        <!-- PAGE HEADING -->
+        <div class="mb-4">
+            <h2 class="page-heading">
+                Received Applications
+            </h2>
+
+            <p class="text-muted">
+                Review candidates, manage applications and declare final hiring decisions.
+            </p>
+        </div>
+
+        <!-- SUCCESS MESSAGE -->
+        <div th:if="${success}"
+             class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+            <span th:text="${success}"></span>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+
+        <!-- ERROR MESSAGE -->
+        <div th:if="${error}"
+             class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+
+            <span th:text="${error}"></span>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+
+        <!-- JOB SUMMARY -->
+        <div class="summary-card">
+
+            <h4 class="fw-bold"
+                th:text="${job.title}">
+                Java Full Stack Developer
+            </h4>
+
+            <p class="mb-2"
+               th:text="${job.company.companyName}">
+                Company Name
+            </p>
+
+            <p class="mb-3"
+               th:text="${job.location}">
+                Bangalore
+            </p>
+
+            <h5>Total Applications</h5>
+
+            <h2 class="fw-bold"
+                th:text="${totalApplications}">
+                0
+            </h2>
+
+        </div>
+
+        <!-- NO APPLICATIONS -->
+        <div th:if="${#lists.isEmpty(applications)}"
+             class="alert alert-info">
+
+            No candidates have applied for this job yet.
+
+        </div>
+
+        <!-- APPLICANT CARDS -->
+        <div th:each="jobApp : ${applications}"
+             class="applicant-card">
+
+            <!-- CANDIDATE INFORMATION -->
+            <div class="d-flex justify-content-between
+                        align-items-start flex-wrap gap-2">
+
+                <div>
+
+                    <h4 class="candidate-name"
+                        th:text="${jobApp.candidate.fullName}">
+                        Candidate Name
+                    </h4>
+
+                    <p class="text-muted mb-2"
+                       th:text="${jobApp.candidate.email}">
+                        candidate@example.com
+                    </p>
+
+                </div>
+
+                <!-- APPLICATION STATUS -->
+                <span class="badge fs-6"
+                      th:classappend="${jobApp.status == 'APPLIED'}
+                        ? ' bg-primary'
+                        : (${jobApp.status == 'SHORTLISTED'}
+                            ? ' bg-success'
+                            : (${jobApp.status == 'REJECTED'}
+                                ? ' bg-danger'
+                                : ' bg-secondary'))"
+                      th:text="${jobApp.status}">
+                    APPLIED
+                </span>
+
+            </div>
+
+            <hr>
+
+            <!-- APPLICATION DETAILS -->
+            <div class="row">
+
+                <div class="col-md-6 mb-2">
+
+                    <span class="info-label">
+                        Applied On:
+                    </span>
+
+                    <strong th:text="${#temporals.format(
+                        jobApp.appliedAt,
+                        'dd MMM yyyy, hh:mm a')}">
+                        22 Oct 2026
+                    </strong>
+
+                </div>
+
+                <div class="col-md-6 mb-2">
+
+                    <span class="info-label">
+                        Application ID:
+                    </span>
+
+                    <strong th:text="${jobApp.id}">
+                        1
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <hr>
+
+            <!-- APPLICATION ACTIONS -->
+            <h6 class="fw-bold mb-3">
+                Application Actions
+            </h6>
+
+            <div class="action-buttons">
+
+                <!-- SHORTLIST -->
+                <form th:action="@{/recruiter/jobs/{jobId}/applications/{applicationId}/status(
+                        jobId=${job.id},
+                        applicationId=${jobApp.id})}"
+                      method="post"
+                      th:if="${jobApp.status != 'SHORTLISTED'
+                              and jobApp.status != 'REJECTED'}">
+
+                    <input type="hidden"
+                           name="status"
+                           value="SHORTLISTED">
+
+                    <button type="submit"
+                            class="btn btn-success"
+                            onclick="return confirm('Shortlist this candidate?')">
+
+                        Shortlist
+
+                    </button>
+
+                </form>
+
+                <!-- REJECT APPLICATION -->
+                <form th:action="@{/recruiter/jobs/{jobId}/applications/{applicationId}/status(
+                        jobId=${job.id},
+                        applicationId=${jobApp.id})}"
+                      method="post"
+                      th:if="${jobApp.status != 'REJECTED'}">
+
+                    <input type="hidden"
+                           name="status"
+                           value="REJECTED">
+
+                    <button type="submit"
+                            class="btn btn-danger"
+                            onclick="return confirm('Reject this application?')">
+
+                        Reject Application
+
+                    </button>
+
+                </form>
+
+                <!-- RESUME DOWNLOAD -->
+                <a th:if="${resumeAvailability[jobApp.id]}"
+                   th:href="@{/recruiter/jobs/{jobId}/applications/{applicationId}/resume(
+                       jobId=${job.id},
+                       applicationId=${jobApp.id})}"
+                   class="btn resume-btn">
+
+                    Download Resume
+
+                </a>
+
+                <!-- RESUME NOT UPLOADED -->
+                <span th:unless="${resumeAvailability[jobApp.id]}"
+                      class="badge bg-warning text-dark p-2">
+
+                    Resume Not Uploaded
+
+                </span>
+
+                <!-- SCHEDULE INTERVIEW -->
+                <a th:if="${jobApp.status == 'SHORTLISTED'}"
+                   th:href="@{/recruiter/jobs/{jobId}/applications/{applicationId}/interview(
+                       jobId=${job.id},
+                       applicationId=${jobApp.id})}"
+                   class="btn interview-btn">
+
+                    Schedule Interview
+
+                </a>
+
+            </div>
+
+            <p class="resume-info mt-3 mb-0">
+
+                <strong>Resume:</strong>
+
+                Candidates can upload their resume in PDF format.
+                Recruiters can download resumes when available.
+
+            </p>
+
+            <hr class="my-4">
+
+            <!-- FINAL HIRING DECISION -->
+            <div class="decision-section">
+
+                <h5 class="decision-heading mb-3">
+                    Final Hiring Decision
+                </h5>
+
+                <!-- CURRENT DECISION -->
+                <div class="mb-3">
+
+                    <span class="info-label">
+                        Current Final Decision:
+                    </span>
+
+                    <span th:if="${jobApp.finalDecision == null}"
+                          class="badge bg-secondary decision-badge">
+                        NOT DECLARED
+                    </span>
+
+                    <span th:if="${jobApp.finalDecision == 'SELECTED'}"
+                          class="badge bg-success decision-badge">
+                        SELECTED
+                    </span>
+
+                    <span th:if="${jobApp.finalDecision == 'REJECTED'}"
+                          class="badge bg-danger decision-badge">
+                        REJECTED
+                    </span>
+
+                    <span th:if="${jobApp.finalDecision == 'ON_HOLD'}"
+                          class="badge bg-warning text-dark decision-badge">
+                        ON HOLD
+                    </span>
+
+                </div>
+
+                <!-- DECISION DATE -->
+                <div class="mb-3"
+                     th:if="${jobApp.decisionDeclaredAt != null}">
+
+                    <span class="info-label">
+                        Decision Declared On:
+                    </span>
+
+                    <strong th:text="${#temporals.format(
+                        jobApp.decisionDeclaredAt,
+                        'dd MMM yyyy, hh:mm a')}">
+                        22 Oct 2026
+                    </strong>
+
+                </div>
+
+                <!-- EXISTING FEEDBACK -->
+                <div class="mb-3"
+                     th:if="${jobApp.recruiterFeedback != null
+                             and !#strings.isEmpty(jobApp.recruiterFeedback)}">
+
+                    <span class="info-label">
+                        Recruiter Feedback:
+                    </span>
+
+                    <p class="feedback-box mt-1 mb-0"
+                       th:text="${jobApp.recruiterFeedback}">
+                        Feedback
+                    </p>
+
+                </div>
+
+                <hr>
+
+                <!-- DECLARE / UPDATE DECISION FORM -->
+                <form th:action="@{/recruiter/jobs/{jobId}/applications/{applicationId}/decision(
+                        jobId=${job.id},
+                        applicationId=${jobApp.id})}"
+                      method="post">
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold"
+                               th:for="${'decision-' + jobApp.id}">
+
+                            Select Final Decision
+
+                        </label>
+
+                        <select class="form-select"
+                                name="finalDecision"
+                                th:id="${'decision-' + jobApp.id}"
+                                required>
+
+                            <option value="">
+                                -- Choose Decision --
+                            </option>
+
+                            <option value="SELECTED"
+                                    th:selected="${jobApp.finalDecision == 'SELECTED'}">
+                                SELECTED
+                            </option>
+
+                            <option value="REJECTED"
+                                    th:selected="${jobApp.finalDecision == 'REJECTED'}">
+                                REJECTED
+                            </option>
+
+                            <option value="ON_HOLD"
+                                    th:selected="${jobApp.finalDecision == 'ON_HOLD'}">
+                                ON HOLD
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold"
+                               th:for="${'feedback-' + jobApp.id}">
+
+                            Recruiter Feedback
+
+                        </label>
+
+                        <textarea class="form-control"
+                                  name="recruiterFeedback"
+                                  th:id="${'feedback-' + jobApp.id}"
+                                  rows="3"
+                                  maxlength="2000"
+                                  placeholder="Write feedback for this candidate..."
+                                  th:text="${jobApp.recruiterFeedback}">
+                        </textarea>
+
+                        <div class="form-text">
+                            Maximum 2000 characters.
+                        </div>
+
+                    </div>
+
+                    <button type="submit"
+                            class="btn decision-submit"
+                            onclick="return confirm('Are you sure you want to declare/update the final hiring decision?')">
+
+                        <span th:if="${jobApp.finalDecision == null}">
+                            Declare Final Decision
+                        </span>
+
+                        <span th:if="${jobApp.finalDecision != null}">
+                            Update Final Decision
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <!-- BACK BUTTON -->
+        <div class="mt-4">
+
+            <a th:href="@{/recruiter/jobs}"
+               class="btn btn-outline-secondary">
+
+                Back to Manage Jobs
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+</body>
+</html>

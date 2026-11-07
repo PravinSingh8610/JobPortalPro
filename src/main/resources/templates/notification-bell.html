@@ -1,0 +1,16 @@
+
+<div th:fragment="notificationBell">
+
+    <a th:href="@{/notifications}"
+       class="btn btn-outline-primary position-relative">
+
+        <span>🔔 Notifications</span>
+
+        <span th:if="${globalUnreadCount > 0}"
+              class="badge bg-danger rounded-pill ms-1"
+              th:text="${globalUnreadCount}">
+        </span>
+
+    </a>
+
+</div>

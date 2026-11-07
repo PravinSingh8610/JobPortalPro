@@ -1,0 +1,496 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Date-wise Reports | JobPortalPro</title>
+
+    <!-- BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- BOOTSTRAP ICONS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f7fc;
+            font-family: Arial, sans-serif;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: #14213d;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 25px 15px;
+            overflow-y: auto;
+        }
+
+        .sidebar h4 {
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 15px;
+            margin-bottom: 7px;
+            text-decoration: none;
+            color: #dce4f2;
+            border-radius: 8px;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+
+        .main-content {
+            margin-left: 250px;
+            padding: 35px;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        /* ANALYTICS CARDS */
+
+        .result-card {
+            color: white;
+            border-radius: 16px;
+            padding: 30px;
+            height: 100%;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        /* 1. APPLICATIONS */
+
+        .applications-card {
+            background: linear-gradient(
+                135deg, #2563eb, #14213d
+            );
+        }
+
+        /* 2. INTERVIEWS */
+
+        .interviews-card {
+            background: linear-gradient(
+                135deg, #059669, #064e3b
+            );
+        }
+
+        /* 3. JOB OFFERS */
+
+        .offers-card {
+            background: linear-gradient(
+                135deg, #7c3aed, #4c1d95
+            );
+        }
+
+        /* 4. NEW: ONBOARDINGS */
+
+        .onboardings-card {
+            background: linear-gradient(
+                135deg, #ea580c, #9a3412
+            );
+        }
+
+        .result-card h1 {
+            font-size: 48px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .result-card h5 {
+            font-weight: 600;
+        }
+
+        .date-range-info {
+            background: #eaf1ff;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            color: #1e3a8a;
+        }
+
+        /* RESPONSIVE DESIGN */
+
+        @media (max-width: 991px) {
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ====================================== -->
+<!-- SIDEBAR -->
+<!-- ====================================== -->
+
+<div class="sidebar">
+
+    <h4>
+        <i class="bi bi-briefcase-fill"></i>
+        JobPortalPro
+    </h4>
+
+    <a th:href="@{/admin/dashboard}">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+
+    <a th:href="@{/admin/reports}">
+        <i class="bi bi-bar-chart-line"></i>
+        Reports & Analytics
+    </a>
+
+    <a th:href="@{/admin/reports/date-wise}"
+       class="active">
+        <i class="bi bi-calendar-range"></i>
+        Date-wise Reports
+    </a>
+
+    <form th:action="@{/logout}"
+          method="post"
+          class="mt-4">
+
+        <button type="submit"
+                class="btn btn-outline-light w-100">
+
+            <i class="bi bi-box-arrow-right"></i>
+            Logout
+
+        </button>
+
+    </form>
+
+</div>
+
+<!-- ====================================== -->
+<!-- MAIN CONTENT -->
+<!-- ====================================== -->
+
+<div class="main-content">
+
+    <!-- PAGE HEADER -->
+
+    <div class="mb-4">
+
+        <h2 class="fw-bold">
+            <i class="bi bi-calendar-range text-primary"></i>
+            Date-wise Reports & Analytics
+        </h2>
+
+        <p class="text-muted">
+            Filter job applications, scheduled interviews,
+            generated job offers and onboarding records
+            by a selected date range.
+        </p>
+
+    </div>
+
+    <!-- ====================================== -->
+    <!-- FILTER FORM -->
+    <!-- ====================================== -->
+
+    <div class="report-card mb-4">
+
+        <h5 class="fw-bold mb-4">
+            <i class="bi bi-funnel"></i>
+            Filter Reports
+        </h5>
+
+        <form th:action="@{/admin/reports/date-wise}"
+              method="get">
+
+            <div class="row g-3">
+
+                <!-- FROM DATE -->
+
+                <div class="col-md-5">
+
+                    <label for="fromDate"
+                           class="form-label fw-semibold">
+                        From Date
+                    </label>
+
+                    <input type="date"
+                           id="fromDate"
+                           name="fromDate"
+                           class="form-control form-control-lg"
+                           th:value="${fromDate}"
+                           required>
+
+                </div>
+
+                <!-- TO DATE -->
+
+                <div class="col-md-5">
+
+                    <label for="toDate"
+                           class="form-label fw-semibold">
+                        To Date
+                    </label>
+
+                    <input type="date"
+                           id="toDate"
+                           name="toDate"
+                           class="form-control form-control-lg"
+                           th:value="${toDate}"
+                           required>
+
+                </div>
+
+                <!-- APPLY BUTTON -->
+
+                <div class="col-md-2 d-flex align-items-end">
+
+                    <button type="submit"
+                            class="btn btn-primary btn-lg w-100">
+
+                        <i class="bi bi-search"></i>
+                        Apply
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- RESET BUTTON -->
+
+            <div class="mt-3">
+
+                <a th:href="@{/admin/reports/date-wise}"
+                   class="btn btn-outline-secondary">
+
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Reset Filter
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- ====================================== -->
+    <!-- ERROR MESSAGE -->
+    <!-- ====================================== -->
+
+    <div th:if="${errorMessage != null}"
+         class="alert alert-danger">
+
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+        <span th:text="${errorMessage}"></span>
+
+    </div>
+
+    <!-- ====================================== -->
+    <!-- FILTER RESULTS -->
+    <!-- ====================================== -->
+
+    <div th:if="${filterApplied}">
+
+        <!-- SELECTED DATE RANGE -->
+
+        <div class="date-range-info">
+
+            <i class="bi bi-calendar-check me-2"></i>
+
+            <strong>Showing reports from</strong>
+
+            <strong th:text="${fromDate}"></strong>
+
+            <strong>to</strong>
+
+            <strong th:text="${toDate}"></strong>
+
+        </div>
+
+        <!-- ====================================== -->
+        <!-- ANALYTICS CARDS -->
+        <!-- ====================================== -->
+
+        <div class="row g-4">
+
+            <!-- ================================== -->
+            <!-- 1. TOTAL APPLICATIONS -->
+            <!-- ================================== -->
+
+            <div class="col-md-6">
+
+                <div class="result-card applications-card">
+
+                    <h5>
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        Total Applications
+                    </h5>
+
+                    <h1 th:text="${totalFilteredApplications}">
+                        0
+                    </h1>
+
+                    <p class="mb-0">
+                        Applications submitted during
+                        the selected date range.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- ================================== -->
+            <!-- 2. TOTAL INTERVIEWS -->
+            <!-- ================================== -->
+
+            <div class="col-md-6">
+
+                <div class="result-card interviews-card">
+
+                    <h5>
+                        <i class="bi bi-camera-video me-2"></i>
+                        Total Interviews
+                    </h5>
+
+                    <h1 th:text="${totalFilteredInterviews}">
+                        0
+                    </h1>
+
+                    <p class="mb-0">
+                        Interviews scheduled to take place
+                        during the selected date range.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- ================================== -->
+            <!-- 3. TOTAL JOB OFFERS -->
+            <!-- ================================== -->
+
+            <div class="col-md-6">
+
+                <div class="result-card offers-card">
+
+                    <h5>
+                        <i class="bi bi-briefcase-fill me-2"></i>
+                        Total Job Offers
+                    </h5>
+
+                    <h1 th:text="${totalFilteredOffers}">
+                        0
+                    </h1>
+
+                    <p class="mb-0">
+                        Job offers generated during
+                        the selected date range.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- ================================== -->
+            <!-- 4. NEW: TOTAL ONBOARDINGS -->
+            <!-- ================================== -->
+
+            <div class="col-md-6">
+
+                <div class="result-card onboardings-card">
+
+                    <h5>
+                        <i class="bi bi-person-check-fill me-2"></i>
+                        Total Onboardings
+                    </h5>
+
+                    <h1 th:text="${totalFilteredOnboardings}">
+                        0
+                    </h1>
+
+                    <p class="mb-0">
+                        Onboarding records created during
+                        the selected date range.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ====================================== -->
+    <!-- DEFAULT MESSAGE -->
+    <!-- ====================================== -->
+
+    <div th:unless="${filterApplied}"
+         class="report-card text-center">
+
+        <i class="bi bi-calendar-check text-primary"
+           style="font-size: 45px;"></i>
+
+        <h5 class="mt-3">
+            Select a Date Range
+        </h5>
+
+        <p class="text-muted mb-0">
+            Choose From Date and To Date,
+            then click Apply to view applications,
+            interviews, job offers and onboarding analytics.
+        </p>
+
+    </div>
+
+    <!-- ====================================== -->
+    <!-- BACK TO REPORTS DASHBOARD -->
+    <!-- ====================================== -->
+
+    <div class="mt-4">
+
+        <a th:href="@{/admin/reports}"
+           class="btn btn-outline-primary">
+
+            <i class="bi bi-arrow-left"></i>
+            Back to Reports Dashboard
+
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

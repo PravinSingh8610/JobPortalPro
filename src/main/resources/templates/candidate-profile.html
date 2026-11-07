@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | JobPortalPro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f7fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: #172554;
+        }
+
+        .profile-card {
+            max-width: 750px;
+            margin: 45px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .profile-heading {
+            color: #172554;
+            font-weight: 700;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .form-control {
+            padding: 11px;
+            border-radius: 8px;
+        }
+
+        .btn-update {
+            background: #2563eb;
+            color: white;
+            padding: 11px 25px;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .btn-update:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" th:href="@{/candidate/dashboard}">
+            JobPortalPro
+        </a>
+
+        <a th:href="@{/candidate/dashboard}" class="btn btn-outline-light btn-sm">
+            Back to Dashboard
+        </a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="profile-card">
+
+        <h2 class="profile-heading mb-2">My Candidate Profile</h2>
+        <p class="text-muted mb-4">
+            Update your information to help recruiters understand your profile.
+        </p>
+
+        <div th:if="${success}" class="alert alert-success"
+             th:text="${success}"></div>
+
+        <div th:if="${error}" class="alert alert-danger"
+             th:text="${error}"></div>
+
+        <form th:action="@{/candidate/profile/update}" method="post">
+
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="fullName" class="form-control"
+                       th:value="${user.fullName}" maxlength="100" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-control"
+                       th:value="${user.email}" readonly>
+                <small class="text-muted">Email address cannot be changed here.</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Skills</label>
+                <textarea name="skills" class="form-control" rows="3"
+                          maxlength="1000"
+                          placeholder="Example: Java, Spring Boot, MySQL, HTML, CSS"
+                          th:text="${user.skills}"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Experience (Years)</label>
+                <input type="number" name="experienceYears"
+                       class="form-control" min="0" max="60"
+                       th:value="${user.experienceYears}"
+                       placeholder="Example: 2">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Current Location</label>
+                <input type="text" name="location" class="form-control"
+                       maxlength="150" th:value="${user.location}"
+                       placeholder="Example: Lucknow, Uttar Pradesh">
+            </div>
+
+            <button type="submit" class="btn-update">
+                Update Profile
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

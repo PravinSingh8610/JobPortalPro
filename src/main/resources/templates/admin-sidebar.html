@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<aside th:fragment="sidebar"
+       class="admin-sidebar">
+
+    <style>
+        .admin-sidebar {
+            background: #172554;
+            color: white;
+            min-height: 100vh;
+            padding: 25px 15px;
+        }
+
+        .admin-brand {
+            font-size: 25px;
+            font-weight: 800;
+            margin-bottom: 35px;
+            color: white;
+        }
+
+        .admin-sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 15px;
+            margin-bottom: 7px;
+            border-radius: 10px;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .admin-sidebar .nav-link:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateX(3px);
+        }
+
+        .admin-sidebar .nav-link.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .admin-sidebar .nav-link.disabled-link {
+            opacity: 0.55;
+            cursor: default;
+        }
+
+        .admin-sidebar .nav-link.disabled-link:hover {
+            background: transparent;
+            transform: none;
+        }
+
+        .admin-sidebar .nav-icon {
+            font-size: 18px;
+            width: 24px;
+        }
+
+        .admin-sidebar .logout-btn {
+            width: 100%;
+            margin-top: 25px;
+        }
+    </style>
+
+    <div class="admin-brand">
+        JobPortalPro
+    </div>
+
+    <nav>
+
+        <a th:href="@{/admin/dashboard}"
+           target="_blank"
+           rel="noopener"
+           class="nav-link">
+            <span class="nav-icon">🏠</span>
+            Dashboard
+        </a>
+
+        <a th:href="@{/admin/candidates}"
+           target="_blank"
+           rel="noopener"
+           class="nav-link">
+            <span class="nav-icon">👥</span>
+            Manage Candidates
+        </a>
+
+        <a th:href="@{/admin/recruiters}"
+           target="_blank"
+           rel="noopener"
+           class="nav-link">
+            <span class="nav-icon">🏢</span>
+            Manage Recruiters
+        </a>
+
+        <a th:href="@{/admin/jobs}"
+           target="_blank"
+           rel="noopener"
+           class="nav-link">
+            <span class="nav-icon">💼</span>
+            Manage Jobs
+        </a>
+
+        <!-- Future modules: not clickable yet -->
+
+        <span class="nav-link disabled-link">
+            <span class="nav-icon">📋</span>
+            Applications
+            <small class="ms-auto">Soon</small>
+        </span>
+
+        <span class="nav-link disabled-link">
+            <span class="nav-icon">📅</span>
+            Interviews
+            <small class="ms-auto">Soon</small>
+        </span>
+
+        <span class="nav-link disabled-link">
+            <span class="nav-icon">✉️</span>
+            Job Offers
+            <small class="ms-auto">Soon</small>
+        </span>
+
+        <span class="nav-link disabled-link">
+            <span class="nav-icon">✅</span>
+            Onboarding
+            <small class="ms-auto">Soon</small>
+        </span>
+
+        <span class="nav-link disabled-link">
+            <span class="nav-icon">📊</span>
+            Reports &amp; Analytics
+            <small class="ms-auto">Soon</small>
+        </span>
+
+    </nav>
+
+    <hr>
+
+    <form th:action="@{/logout}" method="post">
+        <button type="submit"
+                class="btn btn-danger logout-btn">
+            Logout
+        </button>
+    </form>
+
+</aside>
+
+</body>
+</html>

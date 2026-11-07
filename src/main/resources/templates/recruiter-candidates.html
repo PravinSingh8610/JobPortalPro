@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Find Candidates | JobPortalPro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f7fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: #172554;
+        }
+
+        .page-heading {
+            color: #172554;
+            font-weight: 700;
+        }
+
+        .search-card,
+        .candidate-card {
+            background: white;
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+        }
+
+        .search-card {
+            padding: 25px;
+        }
+
+        .candidate-card {
+            padding: 22px;
+            height: 100%;
+            transition: transform 0.2s;
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .candidate-avatar {
+            width: 52px;
+            height: 52px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: #dbeafe;
+            color: #1d4ed8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 5px 10px;
+            margin: 3px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .btn-search {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-search:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+
+        .candidate-name {
+            color: #172554;
+            font-weight: 700;
+        }
+
+        .candidate-email {
+            overflow-wrap: anywhere;
+        }
+
+        .btn-profile {
+            background: #172554;
+            color: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .btn-profile:hover {
+            background: #1e40af;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark">
+    <div class="container">
+
+        <a class="navbar-brand fw-bold"
+           th:href="@{/recruiter/dashboard}">
+            JobPortalPro
+        </a>
+
+        <a th:href="@{/recruiter/dashboard}"
+           class="btn btn-outline-light btn-sm">
+            Back to Dashboard
+        </a>
+
+    </div>
+</nav>
+
+
+<div class="container py-5">
+
+    <!-- PAGE HEADING -->
+    <div class="mb-4">
+        <h2 class="page-heading">Find Candidates</h2>
+
+        <p class="text-muted">
+            Discover suitable candidates for your job openings.
+        </p>
+    </div>
+
+
+    <!-- SEARCH AND FILTER FORM -->
+    <div class="search-card mb-4">
+
+        <h5 class="mb-3">Search & Filter Candidates</h5>
+
+        <form th:action="@{/recruiter/candidates}" method="get">
+
+            <div class="row g-3">
+
+                <!-- KEYWORD -->
+                <div class="col-md-6">
+                    <label class="form-label">Name or Email</label>
+
+                    <input type="text"
+                           name="keyword"
+                           class="form-control"
+                           placeholder="Search candidate name or email"
+                           th:value="${keyword}">
+                </div>
+
+
+                <!-- SKILLS -->
+                <div class="col-md-6">
+                    <label class="form-label">Skills</label>
+
+                    <input type="text"
+                           name="skills"
+                           class="form-control"
+                           placeholder="Example: Java, Spring Boot"
+                           th:value="${skills}">
+                </div>
+
+
+                <!-- LOCATION -->
+                <div class="col-md-4">
+                    <label class="form-label">Location</label>
+
+                    <input type="text"
+                           name="location"
+                           class="form-control"
+                           placeholder="Example: Lucknow"
+                           th:value="${location}">
+                </div>
+
+
+                <!-- MIN EXPERIENCE -->
+                <div class="col-md-4">
+                    <label class="form-label">Minimum Experience</label>
+
+                    <input type="number"
+                           name="minExperience"
+                           class="form-control"
+                           min="0"
+                           max="60"
+                           placeholder="Minimum years"
+                           th:value="${minExperience}">
+                </div>
+
+
+                <!-- MAX EXPERIENCE -->
+                <div class="col-md-4">
+                    <label class="form-label">Maximum Experience</label>
+
+                    <input type="number"
+                           name="maxExperience"
+                           class="form-control"
+                           min="0"
+                           max="60"
+                           placeholder="Maximum years"
+                           th:value="${maxExperience}">
+                </div>
+
+
+                <!-- BUTTONS -->
+                <div class="col-12 d-flex gap-2">
+
+                    <button type="submit"
+                            class="btn btn-search px-4">
+                        Search Candidates
+                    </button>
+
+                    <a th:href="@{/recruiter/candidates}"
+                       class="btn btn-outline-secondary">
+                        Clear Filters
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- CANDIDATE RESULTS HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h5 class="page-heading mb-0">
+            Candidate Results
+        </h5>
+
+        <span class="badge text-bg-primary"
+              th:text="${#lists.size(candidates)} + ' Candidates Found'">
+            0 Candidates Found
+        </span>
+
+    </div>
+
+
+    <!-- ERROR MESSAGE -->
+    <div th:if="${error}"
+         class="alert alert-danger"
+         th:text="${error}">
+    </div>
+
+
+    <!-- NO CANDIDATES -->
+    <div th:if="${#lists.isEmpty(candidates)}"
+         class="alert alert-info">
+
+        No candidates found. Try changing your search filters.
+
+    </div>
+
+
+    <!-- CANDIDATE CARDS -->
+    <div class="row g-4"
+         th:unless="${#lists.isEmpty(candidates)}">
+
+        <div class="col-md-6 col-lg-4"
+             th:each="candidate : ${candidates}">
+
+            <div class="candidate-card">
+
+                <!-- CANDIDATE HEADER -->
+                <div class="d-flex align-items-center gap-3 mb-3">
+
+                    <div class="candidate-avatar"
+                         th:text="${#strings.substring(candidate.fullName, 0, 1).toUpperCase()}">
+                        C
+                    </div>
+
+                    <div class="min-w-0">
+
+                        <h5 class="candidate-name mb-1"
+                            th:text="${candidate.fullName}">
+                            Candidate Name
+                        </h5>
+
+                        <small class="text-muted candidate-email"
+                               th:text="${candidate.email}">
+                            candidate@email.com
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <hr>
+
+
+                <!-- EXPERIENCE -->
+                <p class="mb-2">
+
+                    <strong>Experience:</strong>
+
+                    <span th:if="${candidate.experienceYears != null}"
+                          th:text="${candidate.experienceYears} + ' Years'">
+                    </span>
+
+                    <span th:if="${candidate.experienceYears == null}">
+                        Not specified
+                    </span>
+
+                </p>
+
+
+                <!-- LOCATION -->
+                <p class="mb-3">
+
+                    <strong>Location:</strong>
+
+                    <span th:text="${candidate.location != null
+                        and !#strings.isEmpty(candidate.location)
+                        ? candidate.location : 'Not specified'}">
+                    </span>
+
+                </p>
+
+
+                <!-- SKILLS -->
+                <div class="mb-3">
+
+                    <strong>Skills:</strong>
+
+                    <div class="mt-2"
+                         th:if="${candidate.skills != null
+                         and !#strings.isEmpty(candidate.skills)}">
+
+                        <span class="skill-tag"
+                              th:each="skill : ${#strings.arraySplit(candidate.skills, ',')}"
+                              th:text="${#strings.trim(skill)}">
+                        </span>
+
+                    </div>
+
+                    <small class="text-muted"
+                           th:if="${candidate.skills == null
+                           or #strings.isEmpty(candidate.skills)}">
+
+                        Skills not added
+
+                    </small>
+
+                </div>
+
+
+                <hr>
+
+
+                <!-- VIEW FULL PROFILE BUTTON -->
+                <div class="d-grid mt-3">
+
+                    <a th:href="@{/recruiter/candidates/profile/{id}(id=${candidate.id})}"
+                       class="btn btn-profile">
+
+                        View Full Profile
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

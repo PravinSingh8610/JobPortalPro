@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Admin Dashboard | JobPortalPro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #172554;
+            --blue: #2563eb;
+            --background: #f4f6fb;
+        }
+
+        body {
+            background: var(--background);
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #1e293b;
+        }
+
+        .sidebar {
+            background: var(--navy);
+            min-height: 100vh;
+            padding: 25px 15px;
+            position: sticky;
+            top: 0;
+            align-self: flex-start;
+        }
+
+        .brand {
+            color: white;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 35px;
+            letter-spacing: -.5px;
+        }
+
+        .menu-label {
+            color: #93a4c5;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin: 25px 12px 12px;
+        }
+
+        .sidebar .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            margin-bottom: 6px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: .2s ease;
+            font-size: 14px;
+        }
+
+        .sidebar .menu-link i {
+            font-size: 18px;
+            width: 22px;
+        }
+
+        .sidebar .menu-link:hover {
+            background: #263f85;
+            color: white;
+            transform: translateX(3px);
+        }
+
+        .sidebar .menu-link.active {
+            background: var(--blue);
+            color: white;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            width: 100%;
+            margin-top: 18px;
+            border-radius: 9px;
+            padding: 11px;
+        }
+
+        .main-content {
+            padding: 35px;
+        }
+
+        .welcome-card {
+            background: linear-gradient(120deg, #1e3a8a, #2563eb);
+            color: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .welcome-card h2 {
+            font-weight: 700;
+        }
+
+        .section-title {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            height: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,.05);
+            transition: .2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 22px rgba(0,0,0,.09);
+        }
+
+        .stat-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            font-size: 23px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            margin-bottom: 15px;
+        }
+
+        .stat-card p {
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stat-card h2 {
+            color: #1e40af;
+            font-weight: 800;
+            font-size: 36px;
+            margin: 10px 0;
+        }
+
+        .stat-card small {
+            color: #64748b;
+        }
+
+        .module-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            height: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,.05);
+            transition: .2s ease;
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .module-icon {
+            font-size: 28px;
+            color: #2563eb;
+            margin-bottom: 15px;
+        }
+
+        .module-card h5 {
+            color: #1e3a8a;
+            font-weight: 700;
+        }
+
+        .module-card p {
+            color: #64748b;
+            margin: 12px 0 20px;
+        }
+
+        .module-card .btn {
+            border-radius: 8px;
+        }
+
+        .footer-note {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 35px;
+        }
+
+        @media (max-width: 767px) {
+            .sidebar {
+                min-height: auto;
+                position: static;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .welcome-card {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- ADMIN SIDEBAR -->
+        <div class="col-md-3 col-lg-2 sidebar">
+
+            <div class="brand">
+                <i class="bi bi-briefcase-fill"></i>
+                JobPortalPro
+            </div>
+
+            <div class="menu-label">MAIN MENU</div>
+
+            <a th:href="@{/admin/dashboard}"
+               class="menu-link active">
+                <i class="bi bi-grid-1x2-fill"></i>
+                Dashboard
+            </a>
+
+            <div class="menu-label">USER MANAGEMENT</div>
+
+            <a th:href="@{/admin/candidates}" class="menu-link">
+                <i class="bi bi-people-fill"></i>
+                Manage Candidates
+            </a>
+
+            <a th:href="@{/admin/recruiters}" class="menu-link">
+                <i class="bi bi-building"></i>
+                Manage Recruiters
+            </a>
+
+            <div class="menu-label">RECRUITMENT</div>
+
+            <a th:href="@{/admin/jobs}" class="menu-link">
+                <i class="bi bi-briefcase-fill"></i>
+                Manage Jobs
+            </a>
+
+            <a th:href="@{/admin/applications}" class="menu-link">
+                <i class="bi bi-file-earmark-person"></i>
+                Applications
+            </a>
+
+            <a th:href="@{/admin/interviews}" class="menu-link">
+                <i class="bi bi-camera-video"></i>
+                Interviews
+            </a>
+
+            <a th:href="@{/admin/offers}" class="menu-link">
+                <i class="bi bi-envelope-check"></i>
+                Job Offers
+            </a>
+
+            <a th:href="@{/admin/onboarding}" class="menu-link">
+                <i class="bi bi-person-check"></i>
+                Onboarding
+            </a>
+
+            <!-- ANALYTICS -->
+            <div class="menu-label">ANALYTICS</div>
+
+            <a th:href="@{/admin/reports}" class="menu-link">
+                <i class="bi bi-bar-chart-line"></i>
+                Reports &amp; Analytics
+            </a>
+
+            <hr class="border-secondary mt-4">
+
+            <!-- LOGOUT -->
+            <form th:action="@{/logout}" method="post">
+                <button type="submit"
+                        class="btn btn-danger logout-btn">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Logout
+                </button>
+            </form>
+
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="col-md-9 col-lg-10 main-content">
+
+            <!-- WELCOME -->
+            <div class="welcome-card">
+
+                <h2>
+                    <i class="bi bi-speedometer2 me-2"></i>
+                    Admin Dashboard
+                </h2>
+
+                <p class="mb-2">
+                    Welcome,
+                    <strong th:text="${adminEmail}">
+                        Administrator
+                    </strong>
+                </p>
+
+                <p class="mb-0">
+                    Manage and monitor your JobPortalPro platform.
+                </p>
+
+            </div>
+
+            <!-- DATABASE STATISTICS -->
+            <h4 class="section-title">
+                <i class="bi bi-graph-up me-2"></i>
+                Platform Overview
+            </h4>
+
+            <div class="row g-4 mb-5">
+
+                <!-- CANDIDATES -->
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+
+                        <p>Total Candidates</p>
+
+                        <h2 th:text="${totalCandidates}">0</h2>
+
+                        <small>Registered candidates</small>
+                    </div>
+                </div>
+
+                <!-- RECRUITERS -->
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+
+                        <p>Total Recruiters</p>
+
+                        <h2 th:text="${totalRecruiters}">0</h2>
+
+                        <small>Registered companies</small>
+                    </div>
+                </div>
+
+                <!-- JOBS -->
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-briefcase"></i>
+                        </div>
+
+                        <p>Total Jobs</p>
+
+                        <h2 th:text="${totalJobs}">0</h2>
+
+                        <small>Jobs posted on platform</small>
+                    </div>
+                </div>
+
+                <!-- APPLICATIONS -->
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+
+                        <p>Total Applications</p>
+
+                        <h2 th:text="${totalApplications}">0</h2>
+
+                        <small>Applications received</small>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PLATFORM MANAGEMENT -->
+            <h4 class="section-title">
+                <i class="bi bi-grid me-2"></i>
+                Platform Management
+            </h4>
+
+            <div class="row g-4">
+
+                <!-- CANDIDATE MANAGEMENT -->
+                <div class="col-md-6">
+                    <div class="module-card">
+
+                        <div class="module-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+
+                        <h5>Candidate Management</h5>
+
+                        <p>
+                            View registered candidates
+                            and their account details.
+                        </p>
+
+                        <a th:href="@{/admin/candidates}"
+                           class="btn btn-primary">
+                            Open Candidates
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- RECRUITER MANAGEMENT -->
+                <div class="col-md-6">
+                    <div class="module-card">
+
+                        <div class="module-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+
+                        <h5>Recruiter Management</h5>
+
+                        <p>
+                            View registered companies
+                            and recruiter information.
+                        </p>
+
+                        <a th:href="@{/admin/recruiters}"
+                           class="btn btn-primary">
+                            Open Recruiters
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- JOB MANAGEMENT -->
+                <div class="col-md-6">
+                    <div class="module-card">
+
+                        <div class="module-icon">
+                            <i class="bi bi-briefcase-fill"></i>
+                        </div>
+
+                        <h5>Job Management</h5>
+
+                        <p>
+                            Monitor posted jobs, their
+                            status and application counts.
+                        </p>
+
+                        <a th:href="@{/admin/jobs}"
+                           class="btn btn-primary">
+                            Open Jobs
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- APPLICATION MANAGEMENT -->
+                <div class="col-md-6">
+                    <div class="module-card">
+
+                        <div class="module-icon">
+                            <i class="bi bi-file-earmark-person"></i>
+                        </div>
+
+                        <h5>Application Management</h5>
+
+                        <p>
+                            Monitor candidate applications,
+                            status and job details.
+                        </p>
+
+                        <a th:href="@{/admin/applications}"
+                           class="btn btn-primary">
+                            Open Applications
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- INTERVIEW MANAGEMENT -->
+                <div class="col-md-6">
+                    <div class="module-card">
+
+                        <div class="module-icon">
+                            <i class="bi bi-camera-video-fill"></i>
+                        </div>
+
+                        <h5>Interview Management</h5>
+
+                        <p>
+                            Monitor scheduled interviews,
+                            candidate details, results
+                            and recruiter feedback.
+                        </p>
+
+                        <a th:href="@{/admin/interviews}"
+                           class="btn btn-primary">
+                            Open Interviews
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- JOB OFFER MANAGEMENT -->
+                <div class="col-md-6">
+                    <div class="module-card">
+
+                        <div class="module-icon">
+                            <i class="bi bi-envelope-check-fill"></i>
+                        </div>
+
+                        <h5>Job Offer Management</h5>
+
+                        <p>
+                            Monitor offers issued by recruiters,
+                            salary packages, joining dates,
+                            candidate responses and offer status.
+                        </p>
+
+                        <a th:href="@{/admin/offers}"
+                           class="btn btn-primary">
+                            Open Job Offers
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- ONBOARDING MANAGEMENT -->
+                <div class="col-md-6">
+                    <div class="module-card">
+
+                        <div class="module-icon">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+
+                        <h5>Onboarding Management</h5>
+
+                        <p>
+                            Monitor candidate onboarding progress,
+                            submission status, recruiter reviews,
+                            approvals and recruiter remarks.
+                        </p>
+
+                        <a th:href="@{/admin/onboarding}"
+                           class="btn btn-primary">
+                            Open Onboarding
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- RECRUITER VERIFICATION -->
+                <div class="col-md-6">
+                    <div class="module-card">
+
+                        <div class="module-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+
+                        <h5>Recruiter Verification</h5>
+
+                        <p>
+                            Review and verify recruiter accounts.
+                        </p>
+
+                        <span class="badge bg-secondary">
+                            Coming Soon
+                        </span>
+
+                    </div>
+                </div>
+
+                <!-- REPORTS & ANALYTICS -->
+                <div class="col-md-6">
+                    <div class="module-card">
+
+                        <div class="module-icon">
+                            <i class="bi bi-bar-chart-line"></i>
+                        </div>
+
+                        <h5>Reports &amp; Analytics</h5>
+
+                        <p>
+                            View platform statistics,
+                            application trends and
+                            performance reports.
+                        </p>
+
+                        <a th:href="@{/admin/reports}"
+                           class="btn btn-primary">
+                            View Analytics
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <p class="footer-note text-center">
+                JobPortalPro Admin Panel |
+                <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">
+                    2026
+                </span>
+            </p>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

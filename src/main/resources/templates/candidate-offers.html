@@ -1,0 +1,433 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>My Job Offers | JobPortalPro</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <style>
+        body {
+            background: #f1f5f9;
+            font-family: 'Segoe UI', sans-serif;
+            color: #0f172a;
+        }
+
+        .navbar {
+            background: #0f172a;
+        }
+
+        .page-title {
+            font-weight: 800;
+        }
+
+        .offer-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 28px rgba(15,23,42,0.06);
+        }
+
+        .detail-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            height: 100%;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .detail-value {
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .offer-message {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            border-radius: 10px;
+            padding: 18px;
+            white-space: pre-wrap;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 18px;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            border-radius: 30px;
+            padding: 9px 16px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-accepted {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-expired {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-action {
+            min-width: 140px;
+            padding: 11px 20px;
+            font-weight: 700;
+        }
+
+        .onboarding-section {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 14px;
+            padding: 20px;
+            margin-top: 18px;
+        }
+
+        .onboarding-section h6 {
+            color: #166534;
+            font-weight: 800;
+        }
+
+        .btn-onboarding {
+            background: #2563eb;
+            color: white;
+            font-weight: 700;
+            padding: 11px 22px;
+            border-radius: 9px;
+            border: none;
+        }
+
+        .btn-onboarding:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+
+        .btn-download {
+            border-radius: 9px;
+            font-weight: 700;
+            padding: 11px 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark px-4 py-3">
+
+    <a class="navbar-brand fw-bold"
+       th:href="@{/candidate/dashboard}">
+        JobPortalPro
+    </a>
+
+    <a class="btn btn-outline-light"
+       th:href="@{/candidate/dashboard}">
+        Dashboard
+    </a>
+
+</nav>
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <h2 class="page-title">My Job Offers</h2>
+
+        <p class="text-muted">
+            Review job offers, manage hiring decisions,
+            and track your onboarding process.
+        </p>
+    </div>
+
+    <!-- SUCCESS MESSAGE -->
+    <div th:if="${success}"
+         class="alert alert-success"
+         th:text="${success}">
+    </div>
+
+    <!-- ERROR MESSAGE -->
+    <div th:if="${error}"
+         class="alert alert-danger"
+         th:text="${error}">
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div th:if="${offers == null or #lists.isEmpty(offers)}"
+         class="empty-state shadow-sm">
+
+        <h4 class="fw-bold">No Job Offers Yet</h4>
+
+        <p class="text-muted">
+            When a recruiter issues a job offer,
+            it will appear here.
+        </p>
+
+        <a th:href="@{/candidate/interviews}"
+           class="btn btn-primary mt-2">
+            View My Interviews
+        </a>
+    </div>
+
+    <!-- OFFER CARDS -->
+    <div th:each="offer : ${offers}"
+         class="offer-card">
+
+        <div class="d-flex justify-content-between
+                    align-items-start flex-wrap gap-3 mb-4">
+
+            <div>
+                <h4 class="fw-bold mb-1"
+                    th:text="${offer.designation}">
+                    Java Full Stack Developer
+                </h4>
+
+                <p class="text-muted mb-0"
+                   th:text="${offer.interview.application.job.company.companyName}">
+                    Company Name
+                </p>
+            </div>
+
+            <!-- OFFER STATUS -->
+            <span class="status-badge"
+                  th:with="expired=${offer.status == 'PENDING'
+                      and offer.offerExpiryDate.isBefore(T(java.time.LocalDate).now())}"
+                  th:classappend="${expired ? 'status-expired'
+                      : (offer.status == 'ACCEPTED' ? 'status-accepted'
+                      : (offer.status == 'REJECTED' ? 'status-rejected'
+                      : (offer.status == 'EXPIRED' ? 'status-expired'
+                      : 'status-pending')))}"
+                  th:text="${expired ? 'EXPIRED' : offer.status}">
+                PENDING
+            </span>
+
+        </div>
+
+        <!-- OFFER DETAILS -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-6">
+                <div class="detail-box">
+                    <div class="detail-label">
+                        Annual Offered Salary (INR)
+                    </div>
+
+                    <div class="detail-value text-success"
+                         th:text="|₹ ${offer.offeredSalary}|">
+                        ₹ 600000
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="detail-box">
+                    <div class="detail-label">
+                        Joining Date
+                    </div>
+
+                    <div class="detail-value"
+                         th:text="${#temporals.format(
+                             offer.joiningDate, 'dd MMM yyyy')}">
+                        01 Dec 2026
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="detail-box">
+                    <div class="detail-label">
+                        Offer Expiry Date
+                    </div>
+
+                    <div class="detail-value"
+                         th:text="${#temporals.format(
+                             offer.offerExpiryDate, 'dd MMM yyyy')}">
+                        15 Nov 2026
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="detail-box">
+                    <div class="detail-label">
+                        Offer Issued On
+                    </div>
+
+                    <div class="detail-value"
+                         th:text="${#temporals.format(
+                             offer.createdAt, 'dd MMM yyyy, hh:mm a')}">
+                        26 Oct 2026
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RECRUITER MESSAGE -->
+        <div th:if="${offer.offerMessage != null
+                     and !#strings.isEmpty(offer.offerMessage)}"
+             class="mb-4">
+
+            <h6 class="fw-bold">
+                Recruiter Message / Terms
+            </h6>
+
+            <div class="offer-message"
+                 th:text="${offer.offerMessage}">
+                Offer details
+            </div>
+        </div>
+
+        <!-- DOWNLOAD OFFER LETTER PDF -->
+        <div class="mb-4">
+
+            <a th:href="@{/candidate/offers/{offerId}/download(
+                         offerId=${offer.id})}"
+               class="btn btn-outline-primary btn-download">
+
+                Download Offer Letter PDF
+
+            </a>
+
+        </div>
+
+        <!-- ACCEPT / REJECT BUTTONS -->
+        <div th:if="${offer.status == 'PENDING'
+                     and !offer.offerExpiryDate.isBefore(T(java.time.LocalDate).now())}"
+             class="d-flex flex-wrap gap-3">
+
+            <!-- ACCEPT OFFER -->
+            <form th:action="@{/candidate/offers/{offerId}/respond(
+                              offerId=${offer.id})}"
+                  method="post"
+                  onsubmit="return confirm('Accept this job offer?');">
+
+                <input th:if="${_csrf != null}"
+                       type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <input type="hidden"
+                       name="decision"
+                       value="ACCEPTED">
+
+                <button type="submit"
+                        class="btn btn-success btn-action">
+                    Accept Offer
+                </button>
+
+            </form>
+
+            <!-- REJECT OFFER -->
+            <form th:action="@{/candidate/offers/{offerId}/respond(
+                              offerId=${offer.id})}"
+                  method="post"
+                  onsubmit="return confirm('Reject this job offer?');">
+
+                <input th:if="${_csrf != null}"
+                       type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <input type="hidden"
+                       name="decision"
+                       value="REJECTED">
+
+                <button type="submit"
+                        class="btn btn-outline-danger btn-action">
+                    Reject Offer
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- ACCEPTED OFFER + ONBOARDING -->
+        <div th:if="${offer.status == 'ACCEPTED'}">
+
+            <div class="alert alert-success mb-0">
+                Congratulations! You have accepted this job offer.
+            </div>
+
+            <div class="onboarding-section">
+
+                <h6>Candidate Onboarding</h6>
+
+                <p class="text-muted mb-3">
+                    Your offer has been accepted.
+                    Start or continue your onboarding process
+                    to complete the next hiring steps.
+                </p>
+
+                <form th:action="@{/candidate/onboarding/start/{offerId}(
+                                  offerId=${offer.id})}"
+                      method="post">
+
+                    <input th:if="${_csrf != null}"
+                           type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
+                    <button type="submit"
+                            class="btn btn-onboarding">
+
+                        Start / Continue Onboarding
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <!-- REJECTED OFFER -->
+        <div th:if="${offer.status == 'REJECTED'}"
+             class="alert alert-danger mb-0">
+
+            You have rejected this job offer.
+
+        </div>
+
+        <!-- EXPIRED OFFER -->
+        <div th:if="${offer.status == 'EXPIRED'
+                     or (offer.status == 'PENDING'
+                     and offer.offerExpiryDate.isBefore(T(java.time.LocalDate).now()))}"
+             class="alert alert-secondary mb-0">
+
+            This job offer has expired.
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,607 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Recruiter Onboarding | JobPortalPro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f1f5f9;
+            font-family: 'Segoe UI', sans-serif;
+            color: #0f172a;
+        }
+
+        .navbar {
+            background: #0f172a;
+        }
+
+        .page-title {
+            font-weight: 800;
+        }
+
+        .custom-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 8px 25px rgba(15,23,42,0.05);
+        }
+
+        .detail-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 17px;
+            height: 100%;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .detail-value {
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .review {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .file-name {
+            max-width: 220px;
+            overflow-wrap: anywhere;
+        }
+
+        .verification-form {
+            min-width: 240px;
+        }
+
+        .download-btn {
+            white-space: nowrap;
+        }
+
+        .completion-card {
+            border-left: 5px solid #16a34a;
+        }
+
+        .completed-card {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 14px;
+            padding: 25px;
+        }
+
+        .requirement-list {
+            color: #475569;
+            line-height: 1.9;
+        }
+
+        .section-subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 767px) {
+            .custom-card {
+                padding: 18px;
+            }
+
+            .page-title {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark px-4 py-3">
+
+    <a class="navbar-brand fw-bold"
+       th:href="@{/recruiter/dashboard}">
+        JobPortalPro
+    </a>
+
+    <div class="d-flex gap-2">
+
+        <a class="btn btn-outline-light btn-sm"
+           th:href="@{/recruiter/onboarding}">
+            All Onboardings
+        </a>
+
+        <a class="btn btn-light btn-sm"
+           th:href="@{/recruiter/dashboard}">
+            Dashboard
+        </a>
+
+    </div>
+
+</nav>
+
+<div class="container py-5">
+
+    <!-- PAGE HEADING -->
+    <div class="mb-4">
+
+        <h2 class="page-title">
+            Candidate Document Verification
+        </h2>
+
+        <p class="text-muted">
+            Review documents, verify candidate details
+            and complete onboarding.
+        </p>
+
+    </div>
+
+    <!-- SUCCESS MESSAGE -->
+    <div th:if="${success}"
+         class="alert alert-success"
+         role="alert"
+         th:text="${success}">
+    </div>
+
+    <!-- ERROR MESSAGE -->
+    <div th:if="${error}"
+         class="alert alert-danger"
+         role="alert"
+         th:text="${error}">
+    </div>
+
+    <!-- ================================= -->
+    <!-- CANDIDATE INFORMATION -->
+    <!-- ================================= -->
+
+    <div class="custom-card">
+
+        <div class="d-flex justify-content-between
+                    align-items-center flex-wrap gap-3 mb-4">
+
+            <h4 class="fw-bold mb-0">
+                Candidate Information
+            </h4>
+
+            <span class="status-badge"
+                  th:classappend="${onboarding.status == 'APPROVED'
+                      ? 'approved'
+                      : (onboarding.status == 'REJECTED'
+                      ? 'rejected'
+                      : (onboarding.status == 'UNDER_REVIEW'
+                      ? 'review' : ''))}"
+                  th:text="${onboarding.status}">
+                PENDING
+            </span>
+
+        </div>
+
+        <div class="row g-3">
+
+            <!-- CANDIDATE NAME -->
+            <div class="col-md-6">
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Candidate Name
+                    </div>
+
+                    <div class="detail-value"
+                         th:text="${onboarding.jobOffer.interview.application.candidate.fullName}">
+                        Candidate Name
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- COMPANY -->
+            <div class="col-md-6">
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Company
+                    </div>
+
+                    <div class="detail-value"
+                         th:text="${onboarding.jobOffer.interview.application.job.company.companyName}">
+                        Company Name
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- DESIGNATION -->
+            <div class="col-md-6">
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Designation
+                    </div>
+
+                    <div class="detail-value"
+                         th:text="${onboarding.jobOffer.designation}">
+                        Java Developer
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- JOINING DATE -->
+            <div class="col-md-6">
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Joining Date
+                    </div>
+
+                    <div class="detail-value"
+                         th:text="${onboarding.jobOffer.joiningDate != null
+                             ? #temporals.format(
+                                 onboarding.jobOffer.joiningDate,
+                                 'dd MMM yyyy')
+                             : 'Not specified'}">
+                        Joining Date
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ONBOARDING ID -->
+            <div class="col-md-6">
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Onboarding ID
+                    </div>
+
+                    <div class="detail-value"
+                         th:text="${onboarding.id}">
+                        1
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- COMPLETION DATE -->
+            <div class="col-md-6"
+                 th:if="${onboarding.completedAt != null}">
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Completed At
+                    </div>
+
+                    <div class="detail-value"
+                         th:text="${#temporals.format(
+                             onboarding.completedAt,
+                             'dd MMM yyyy, hh:mm a')}">
+                        Completion Date
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================================= -->
+    <!-- DOCUMENT VERIFICATION -->
+    <!-- ================================= -->
+
+    <div class="custom-card">
+
+        <div class="d-flex justify-content-between
+                    align-items-center flex-wrap gap-3 mb-3">
+
+            <div>
+
+                <h4 class="fw-bold mb-1">
+                    Uploaded Documents
+                </h4>
+
+                <p class="section-subtitle mb-0">
+                    Review and verify candidate documents.
+                </p>
+
+            </div>
+
+            <span class="badge bg-primary"
+                  th:text="${#lists.size(documents)} + ' Documents'">
+                0 Documents
+            </span>
+
+        </div>
+
+        <!-- NO DOCUMENTS -->
+        <div th:if="${documents == null or #lists.isEmpty(documents)}"
+             class="alert alert-secondary">
+
+            No documents uploaded by this candidate yet.
+
+        </div>
+
+        <!-- DOCUMENT TABLE -->
+        <div th:if="${documents != null and !#lists.isEmpty(documents)}"
+             class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+                        <th>Document Type</th>
+                        <th>File Name</th>
+                        <th>Download</th>
+                        <th>Status</th>
+                        <th>Recruiter Remarks</th>
+                        <th>Verification Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="doc : ${documents}">
+
+                        <!-- DOCUMENT TYPE -->
+                        <td class="fw-semibold"
+                            th:text="${doc.documentType}">
+                            RESUME
+                        </td>
+
+                        <!-- FILE NAME -->
+                        <td class="file-name"
+                            th:text="${doc.originalFileName}">
+                            resume.pdf
+                        </td>
+
+                        <!-- DOWNLOAD -->
+                        <td>
+
+                            <a class="btn btn-outline-primary btn-sm download-btn"
+                               th:href="@{/recruiter/onboarding/{onboardingId}/documents/{documentId}/download(
+                                   onboardingId=${onboarding.id},
+                                   documentId=${doc.id})}">
+                                Download
+                            </a>
+
+                        </td>
+
+                        <!-- DOCUMENT STATUS -->
+                        <td>
+
+                            <span class="status-badge"
+                                  th:classappend="${doc.verificationStatus == 'APPROVED'
+                                      ? 'approved'
+                                      : (doc.verificationStatus == 'REJECTED'
+                                      ? 'rejected'
+                                      : (doc.verificationStatus == 'UNDER_REVIEW'
+                                      ? 'review' : ''))}"
+                                  th:text="${doc.verificationStatus}">
+                                PENDING
+                            </span>
+
+                        </td>
+
+                        <!-- REMARKS -->
+                        <td th:text="${doc.recruiterRemarks != null
+                                     ? doc.recruiterRemarks : '-'}">
+                            -
+                        </td>
+
+                        <!-- VERIFICATION ACTION -->
+                        <td>
+
+                            <!-- Only show actions before completion -->
+                            <form class="verification-form"
+                                  th:if="${onboarding.status != 'APPROVED'}"
+                                  th:action="@{/recruiter/onboarding/{onboardingId}/documents/{documentId}/verify(
+                                      onboardingId=${onboarding.id},
+                                      documentId=${doc.id})}"
+                                  method="post">
+
+                                <!-- CSRF -->
+                                <input th:if="${_csrf != null}"
+                                       type="hidden"
+                                       th:name="${_csrf.parameterName}"
+                                       th:value="${_csrf.token}">
+
+                                <!-- REMARKS -->
+                                <textarea name="remarks"
+                                          class="form-control form-control-sm mb-2"
+                                          rows="2"
+                                          maxlength="1000"
+                                          placeholder="Remarks (required for rejection)"></textarea>
+
+                                <div class="d-flex gap-2">
+
+                                    <button type="submit"
+                                            name="decision"
+                                            value="APPROVED"
+                                            class="btn btn-success btn-sm">
+                                        Approve
+                                    </button>
+
+                                    <button type="submit"
+                                            name="decision"
+                                            value="REJECTED"
+                                            class="btn btn-danger btn-sm">
+                                        Reject
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                            <!-- COMPLETED DOCUMENT -->
+                            <span th:if="${onboarding.status == 'APPROVED'}"
+                                  class="text-success fw-semibold">
+                                Verification Closed
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ================================= -->
+    <!-- NEW: COMPLETE ONBOARDING -->
+    <!-- ================================= -->
+
+    <div class="custom-card completion-card"
+         th:if="${onboarding.status != 'APPROVED'}">
+
+        <h4 class="fw-bold mb-3">
+            Complete Candidate Onboarding
+        </h4>
+
+        <p class="text-muted">
+            Before completing onboarding, verify all
+            uploaded documents and ensure that the
+            required documents are approved.
+        </p>
+
+        <h6 class="fw-bold mt-4">
+            Required Documents
+        </h6>
+
+        <ul class="requirement-list">
+            <li>Resume (RESUME)</li>
+            <li>Marksheet (MARKSHEET)</li>
+            <li>Identity Proof (ID_PROOF)</li>
+        </ul>
+
+        <div class="alert alert-info">
+
+            All uploaded documents must have
+            APPROVED verification status.
+            The backend will validate everything
+            before completing onboarding.
+
+        </div>
+
+        <!-- COMPLETE ONBOARDING FORM -->
+        <form th:action="@{/recruiter/onboarding/{id}/complete(
+                  id=${onboarding.id})}"
+              method="post"
+              onsubmit="return confirm('Are you sure you want to complete this candidate onboarding?');">
+
+            <!-- CSRF TOKEN -->
+            <input th:if="${_csrf != null}"
+                   type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+
+            <button type="submit"
+                    class="btn btn-success btn-lg">
+                Complete Onboarding
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- ================================= -->
+    <!-- ONBOARDING COMPLETED -->
+    <!-- ================================= -->
+
+    <div class="completed-card mb-4"
+         th:if="${onboarding.status == 'APPROVED'}">
+
+        <h4 class="text-success fw-bold mb-3">
+            Onboarding Completed Successfully
+        </h4>
+
+        <p class="mb-2">
+            This candidate's onboarding has been
+            completed and approved.
+        </p>
+
+        <p class="mb-0"
+           th:if="${onboarding.completedAt != null}">
+
+            <strong>Completion Date:</strong>
+
+            <span th:text="${#temporals.format(
+                onboarding.completedAt,
+                'dd MMM yyyy, hh:mm a')}">
+                Date
+            </span>
+
+        </p>
+
+    </div>
+
+    <!-- ================================= -->
+    <!-- BACK BUTTONS -->
+    <!-- ================================= -->
+
+    <div class="d-flex flex-wrap gap-3">
+
+        <a th:href="@{/recruiter/onboarding}"
+           class="btn btn-primary">
+            Back to Onboarding List
+        </a>
+
+        <a th:href="@{/recruiter/dashboard}"
+           class="btn btn-outline-primary">
+            Recruiter Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

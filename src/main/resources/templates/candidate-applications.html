@@ -1,0 +1,904 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>My Applications | JobPortalPro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f1f5f9;
+            font-family: 'Segoe UI', sans-serif;
+            color: #0f172a;
+        }
+
+        .navbar {
+            background: #0f172a;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+        }
+
+        .application-card {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.05);
+        }
+
+        .company-name {
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            font-size: 13px;
+            padding: 9px 14px;
+            border-radius: 20px;
+        }
+
+        .tracking-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 22px;
+            margin: 22px 0;
+        }
+
+        .tracking-timeline {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 24px;
+        }
+
+        .tracking-step {
+            position: relative;
+            flex: 1;
+            text-align: center;
+            min-width: 0;
+        }
+
+        .tracking-step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            width: 100%;
+            height: 3px;
+            background: #cbd5e1;
+            z-index: 0;
+        }
+
+        .tracking-step.completed:not(:last-child)::after {
+            background: #16a34a;
+        }
+
+        .step-circle {
+            position: relative;
+            z-index: 1;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-weight: 700;
+        }
+
+        .tracking-step.completed .step-circle {
+            background: #16a34a;
+            color: white;
+        }
+
+        .tracking-step.rejected .step-circle {
+            background: #dc2626;
+            color: white;
+        }
+
+        .tracking-step.on-hold .step-circle {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 13px;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .step-description {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .interview-card {
+            background: white;
+            border: 1px solid #dbeafe;
+            border-left: 4px solid #2563eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .interview-card.cancelled {
+            border-left-color: #dc2626;
+        }
+
+        .interview-card.completed {
+            border-left-color: #16a34a;
+        }
+
+        .detail-label {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 3px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .meeting-link {
+            overflow-wrap: anywhere;
+        }
+
+        @media (max-width: 576px) {
+            .application-card {
+                padding: 18px;
+            }
+
+            .tracking-section {
+                padding: 14px;
+            }
+
+            .step-circle {
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }
+
+            .tracking-step:not(:last-child)::after {
+                top: 14px;
+            }
+
+            .step-label {
+                font-size: 10px;
+            }
+
+            .step-description {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark px-4 py-3">
+
+    <a class="navbar-brand fw-bold"
+       th:href="@{/candidate/dashboard}">
+        JobPortalPro
+    </a>
+
+    <a class="btn btn-outline-light"
+       th:href="@{/candidate/dashboard}">
+        <i class="bi bi-arrow-left me-1"></i>
+        Back to Dashboard
+    </a>
+
+</nav>
+
+<div class="container py-5">
+
+    <!-- PAGE HEADING -->
+    <div class="mb-4">
+        <h2 class="fw-bold">
+            <i class="bi bi-file-earmark-check text-primary me-2"></i>
+            My Applications
+        </h2>
+
+        <p class="text-muted">
+            Track your job applications, interview rounds
+            and official final hiring decisions.
+        </p>
+    </div>
+
+    <!-- TOTAL APPLICATIONS -->
+    <div class="summary-card">
+        <h5>Total Applications</h5>
+
+        <h2 class="fw-bold"
+            th:text="${totalApplications}">
+            0
+        </h2>
+    </div>
+
+    <!-- NO APPLICATIONS -->
+    <div th:if="${#lists.isEmpty(applications)}"
+         class="alert alert-info">
+
+        You have not applied for any jobs yet.
+
+        <a th:href="@{/candidate/jobs}"
+           class="alert-link">
+            Find Jobs
+        </a>
+    </div>
+
+    <!-- APPLICATION LIST -->
+    <div th:each="jobApp : ${applications}"
+         class="application-card"
+         th:with="
+            jobInterviews=${interviewsByApplication != null
+                ? interviewsByApplication.get(jobApp.id)
+                : null},
+            hasInterviews=${jobInterviews != null
+                and !#lists.isEmpty(jobInterviews)},
+            activeInterviews=${hasInterviews
+                ? jobInterviews.?[status != 'CANCELLED']
+                : null},
+            hasActiveInterviews=${activeInterviews != null
+                and !#lists.isEmpty(activeInterviews)},
+            completedInterviews=${hasInterviews
+                ? jobInterviews.?[status == 'COMPLETED']
+                : null},
+            hasCompletedInterviews=${completedInterviews != null
+                and !#lists.isEmpty(completedInterviews)},
+            declaredResults=${hasInterviews
+                ? jobInterviews.?[result != null]
+                : null},
+            hasDeclaredResults=${declaredResults != null
+                and !#lists.isEmpty(declaredResults)},
+            latestResult=${hasDeclaredResults
+                ? declaredResults[declaredResults.size() - 1]
+                : null}">
+
+        <!-- APPLICATION HEADER -->
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+
+            <div>
+                <h4 class="fw-bold"
+                    th:text="${jobApp.job.title}">
+                    Java Full Stack Developer
+                </h4>
+
+                <p class="company-name"
+                   th:text="${jobApp.job.company.companyName}">
+                    Company Name
+                </p>
+            </div>
+
+            <span class="badge status-badge"
+                  th:classappend="${jobApp.status == 'APPLIED'}
+                    ? ' bg-primary'
+                    : (${jobApp.status == 'SHORTLISTED'}
+                        ? ' bg-success'
+                        : (${jobApp.status == 'REJECTED'}
+                            ? ' bg-danger'
+                            : ' bg-secondary'))"
+                  th:text="${jobApp.status}">
+                APPLIED
+            </span>
+
+        </div>
+
+        <hr>
+
+        <!-- JOB INFORMATION -->
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <div class="detail-label">Location</div>
+                <div class="detail-value"
+                     th:text="${jobApp.job.location}">
+                    Bangalore
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="detail-label">Employment Type</div>
+                <div class="detail-value"
+                     th:text="${jobApp.job.employmentType}">
+                    FULL_TIME
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="detail-label">Applied On</div>
+                <div class="detail-value"
+                     th:text="${#temporals.format(
+                        jobApp.appliedAt,
+                        'dd MMM yyyy, hh:mm a')}">
+                    Application Date
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="detail-label">Job Status</div>
+                <div class="detail-value"
+                     th:text="${jobApp.job.status}">
+                    ACTIVE
+                </div>
+            </div>
+
+        </div>
+
+        <!-- APPLICATION TRACKING -->
+        <div class="tracking-section">
+
+            <h5 class="fw-bold mb-1">
+                <i class="bi bi-diagram-3 text-primary me-2"></i>
+                Application Tracking
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Status based on your application and interview records.
+            </p>
+
+            <div class="tracking-timeline">
+
+                <!-- STAGE 1: APPLIED -->
+                <div class="tracking-step completed">
+
+                    <div class="step-circle">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+
+                    <div class="step-label">
+                        Applied
+                    </div>
+
+                    <div class="step-description">
+                        Submitted
+                    </div>
+
+                </div>
+
+                <!-- STAGE 2: SHORTLISTED -->
+                <div class="tracking-step"
+                     th:classappend="${jobApp.status == 'SHORTLISTED'
+                        or hasActiveInterviews
+                        or hasCompletedInterviews}
+                        ? ' completed' : ''">
+
+                    <div class="step-circle">
+
+                        <i th:if="${jobApp.status == 'SHORTLISTED'
+                            or hasActiveInterviews
+                            or hasCompletedInterviews}"
+                           class="bi bi-check-lg"></i>
+
+                        <span th:unless="${jobApp.status == 'SHORTLISTED'
+                            or hasActiveInterviews
+                            or hasCompletedInterviews}">
+                            2
+                        </span>
+
+                    </div>
+
+                    <div class="step-label">
+                        Shortlisted
+                    </div>
+
+                    <div class="step-description"
+                         th:text="${jobApp.status == 'SHORTLISTED'
+                            or hasActiveInterviews
+                            or hasCompletedInterviews}
+                            ? 'Confirmed' : 'Not confirmed'">
+                        Not confirmed
+                    </div>
+
+                </div>
+
+                <!-- STAGE 3: INTERVIEW -->
+                <div class="tracking-step"
+                     th:classappend="${hasActiveInterviews}
+                        ? ' completed' : ''">
+
+                    <div class="step-circle">
+
+                        <i th:if="${hasActiveInterviews}"
+                           class="bi bi-check-lg"></i>
+
+                        <span th:unless="${hasActiveInterviews}">
+                            3
+                        </span>
+
+                    </div>
+
+                    <div class="step-label">
+                        Interview
+                    </div>
+
+                    <div class="step-description"
+                         th:text="${hasCompletedInterviews}
+                            ? 'Round completed'
+                            : (${hasActiveInterviews}
+                                ? 'Scheduled'
+                                : 'Not scheduled')">
+                        Not scheduled
+                    </div>
+
+                </div>
+
+                <!-- STAGE 4: OFFICIAL FINAL HIRING DECISION -->
+                <div class="tracking-step"
+                     th:classappend="${jobApp.finalDecision == 'SELECTED'}
+                        ? ' completed'
+                        : (${jobApp.finalDecision == 'REJECTED'}
+                            ? ' rejected'
+                            : (${jobApp.finalDecision == 'ON_HOLD'}
+                                ? ' on-hold' : ''))">
+
+                    <div class="step-circle">
+
+                        <i th:if="${jobApp.finalDecision == 'SELECTED'}"
+                           class="bi bi-check-lg"></i>
+
+                        <i th:if="${jobApp.finalDecision == 'REJECTED'}"
+                           class="bi bi-x-lg"></i>
+
+                        <i th:if="${jobApp.finalDecision == 'ON_HOLD'}"
+                           class="bi bi-pause-fill"></i>
+
+                        <span th:if="${jobApp.finalDecision == null}">
+                            4
+                        </span>
+
+                    </div>
+
+                    <div class="step-label">
+                        Final Hiring Decision
+                    </div>
+
+                    <div class="step-description"
+                         th:text="${jobApp.finalDecision != null}
+                            ? ${jobApp.finalDecision}
+                            : 'Not declared'">
+                        Not declared
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- APPLICATION STATUS MESSAGES -->
+            <div class="mt-4">
+
+                <div th:if="${jobApp.status == 'APPLIED'}"
+                     class="alert alert-primary mb-2">
+
+                    <i class="bi bi-hourglass-split me-1"></i>
+                    Your application has been submitted.
+                    Waiting for recruiter review.
+
+                </div>
+
+                <div th:if="${jobApp.status == 'SHORTLISTED'}"
+                     class="alert alert-success mb-2">
+
+                    <i class="bi bi-check-circle me-1"></i>
+                    Your application has been shortlisted.
+
+                </div>
+
+                <div th:if="${jobApp.status == 'REJECTED'}"
+                     class="alert alert-danger mb-2">
+
+                    <i class="bi bi-x-circle me-1"></i>
+                    Your application status is REJECTED.
+
+                </div>
+
+                <div th:if="${jobApp.status != 'APPLIED'
+                      and jobApp.status != 'SHORTLISTED'
+                      and jobApp.status != 'REJECTED'}"
+                     class="alert alert-secondary mb-2">
+
+                    Current application status:
+                    <strong th:text="${jobApp.status}"></strong>
+
+                </div>
+
+                <!-- LATEST INTERVIEW RESULT -->
+                <div th:if="${hasDeclaredResults}"
+                     class="alert mt-2"
+                     th:classappend="${latestResult.result == 'SELECTED'}
+                        ? ' alert-success'
+                        : (${latestResult.result == 'REJECTED'}
+                            ? ' alert-danger'
+                            : ' alert-warning')">
+
+                    <strong>Latest Interview Round Result:</strong>
+
+                    <span th:text="${latestResult.result}">
+                        RESULT
+                    </span>
+
+                    <p class="mb-0 small mt-1">
+                        This result belongs to an individual interview round.
+                        It is separate from the official final hiring decision.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- OFFICIAL FINAL HIRING DECISION -->
+        <div class="tracking-section mt-4">
+
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-award text-primary me-2"></i>
+                Official Final Hiring Decision
+            </h5>
+
+            <!-- DECISION NOT DECLARED -->
+            <div th:if="${jobApp.finalDecision == null}"
+                 class="alert alert-info mb-0">
+
+                <i class="bi bi-info-circle me-2"></i>
+                The recruiter has not declared the final hiring decision yet.
+
+            </div>
+
+            <!-- SELECTED -->
+            <div th:if="${jobApp.finalDecision == 'SELECTED'}"
+                 class="alert alert-success">
+
+                <h5 class="fw-bold">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    Congratulations! You are Selected.
+                </h5>
+
+                <p class="mb-0">
+                    You have been selected for this job position.
+                </p>
+
+            </div>
+
+            <!-- REJECTED -->
+            <div th:if="${jobApp.finalDecision == 'REJECTED'}"
+                 class="alert alert-danger">
+
+                <h5 class="fw-bold">
+                    <i class="bi bi-x-circle-fill me-2"></i>
+                    Application Not Selected
+                </h5>
+
+                <p class="mb-0">
+                    Thank you for your interest.
+                    Your application was not selected.
+                </p>
+
+            </div>
+
+            <!-- ON HOLD -->
+            <div th:if="${jobApp.finalDecision == 'ON_HOLD'}"
+                 class="alert alert-warning">
+
+                <h5 class="fw-bold">
+                    <i class="bi bi-pause-circle-fill me-2"></i>
+                    Your Application Is On Hold
+                </h5>
+
+                <p class="mb-0">
+                    Your application is currently under consideration.
+                </p>
+
+            </div>
+
+            <!-- DECISION DATE -->
+            <div th:if="${jobApp.decisionDeclaredAt != null}"
+                 class="mb-3">
+
+                <strong>Decision Declared On:</strong>
+
+                <span th:text="${#temporals.format(
+                    jobApp.decisionDeclaredAt,
+                    'dd MMM yyyy, hh:mm a')}">
+                    Decision Date
+                </span>
+
+            </div>
+
+            <!-- RECRUITER FEEDBACK -->
+            <div th:if="${jobApp.recruiterFeedback != null
+                  and !#strings.isEmpty(jobApp.recruiterFeedback)}"
+                 class="p-3 bg-light rounded border">
+
+                <strong>
+                    <i class="bi bi-chat-left-text me-2"></i>
+                    Recruiter Feedback
+                </strong>
+
+                <p class="mb-0 mt-2"
+                   th:text="${jobApp.recruiterFeedback}">
+                    Recruiter feedback will appear here.
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- INTERVIEW TRACKING DETAILS -->
+        <div class="mt-4">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-calendar-event text-primary me-2"></i>
+                    Interview Tracking
+                </h5>
+
+                <span class="badge bg-primary"
+                      th:if="${hasInterviews}"
+                      th:text="${jobInterviews.size() + ' Round(s)'}">
+                    0 Rounds
+                </span>
+
+            </div>
+
+            <!-- NO INTERVIEW -->
+            <div th:if="${!hasInterviews}"
+                 class="alert alert-light border mt-3">
+
+                <i class="bi bi-info-circle me-1"></i>
+                No interview records available for this application.
+
+            </div>
+
+            <!-- MULTIPLE INTERVIEW ROUNDS -->
+            <div th:if="${hasInterviews}">
+
+                <div th:each="interview, round : ${jobInterviews}"
+                     class="interview-card"
+                     th:classappend="${interview.status == 'COMPLETED'}
+                        ? ' completed'
+                        : (${interview.status == 'CANCELLED'}
+                            ? ' cancelled' : '')">
+
+                    <!-- ROUND HEADING -->
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+
+                        <h6 class="fw-bold mb-0"
+                            th:text="${'Interview Round ' + round.count}">
+                            Interview Round 1
+                        </h6>
+
+                        <span class="badge"
+                              th:classappend="${interview.status == 'COMPLETED'}
+                                ? ' bg-success'
+                                : (${interview.status == 'SCHEDULED'}
+                                    ? ' bg-primary'
+                                    : (${interview.status == 'CANCELLED'}
+                                        ? ' bg-danger'
+                                        : ' bg-secondary'))"
+                              th:text="${interview.status}">
+                            SCHEDULED
+                        </span>
+
+                    </div>
+
+                    <div class="row g-3">
+
+                        <!-- INTERVIEW DATE -->
+                        <div class="col-md-6">
+
+                            <div class="detail-label">
+                                Interview Date &amp; Time
+                            </div>
+
+                            <div class="detail-value"
+                                 th:text="${#temporals.format(
+                                    interview.interviewDateTime,
+                                    'dd MMM yyyy, hh:mm a')}">
+                                Date and Time
+                            </div>
+
+                        </div>
+
+                        <!-- INTERVIEW MODE -->
+                        <div class="col-md-6">
+
+                            <div class="detail-label">
+                                Interview Mode
+                            </div>
+
+                            <div class="detail-value"
+                                 th:text="${interview.interviewMode}">
+                                ONLINE
+                            </div>
+
+                        </div>
+
+                        <!-- ONLINE MEETING LINK -->
+                        <div class="col-12"
+                             th:if="${interview.interviewMode == 'ONLINE'
+                                and interview.meetingLink != null
+                                and !#strings.isEmpty(interview.meetingLink)}">
+
+                            <div class="detail-label">
+                                Meeting Link
+                            </div>
+
+                            <a class="meeting-link"
+                               th:href="${interview.meetingLink}"
+                               th:text="${interview.meetingLink}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                Open Meeting Link
+                            </a>
+
+                        </div>
+
+                        <!-- OFFLINE LOCATION -->
+                        <div class="col-12"
+                             th:if="${interview.interviewMode == 'OFFLINE'
+                                and interview.interviewLocation != null}">
+
+                            <div class="detail-label">
+                                Interview Location
+                            </div>
+
+                            <div class="detail-value"
+                                 th:text="${interview.interviewLocation}">
+                                Office Location
+                            </div>
+
+                        </div>
+
+                        <!-- RECRUITER NOTES -->
+                        <div class="col-12"
+                             th:if="${interview.notes != null
+                                and !#strings.isEmpty(interview.notes)}">
+
+                            <div class="detail-label">
+                                Recruiter Instructions
+                            </div>
+
+                            <div th:text="${interview.notes}">
+                                Interview instructions
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- INTERVIEW ROUND RESULT -->
+                    <div th:if="${interview.result != null}"
+                         class="mt-3 p-3 bg-light rounded border">
+
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                            <strong>Interview Result:</strong>
+
+                            <span class="badge"
+                                  th:classappend="${interview.result == 'SELECTED'}
+                                    ? ' bg-success'
+                                    : (${interview.result == 'REJECTED'}
+                                        ? ' bg-danger'
+                                        : ' bg-warning text-dark')"
+                                  th:text="${interview.result}">
+                                SELECTED
+                            </span>
+
+                        </div>
+
+                        <p class="mt-2 mb-1"
+                           th:if="${interview.resultDeclaredAt != null}">
+
+                            <strong>Declared On:</strong>
+
+                            <span th:text="${#temporals.format(
+                                interview.resultDeclaredAt,
+                                'dd MMM yyyy, hh:mm a')}">
+                                Date
+                            </span>
+
+                        </p>
+
+                        <p class="mt-2 mb-0"
+                           th:if="${interview.feedback != null
+                               and !#strings.isEmpty(interview.feedback)}">
+
+                            <strong>Recruiter Feedback:</strong>
+
+                            <span th:text="${interview.feedback}">
+                                Feedback
+                            </span>
+
+                        </p>
+
+                    </div>
+
+                    <!-- PENDING RESULT -->
+                    <div th:if="${interview.result == null
+                          and interview.status == 'COMPLETED'}"
+                         class="alert alert-warning mt-3 mb-0">
+
+                        Interview completed.
+                        Result has not been declared yet.
+
+                    </div>
+
+                    <!-- CANCELLED INTERVIEW -->
+                    <div th:if="${interview.status == 'CANCELLED'}"
+                         class="alert alert-danger mt-3 mb-0">
+
+                        This interview round was cancelled.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- INTERVIEWS PAGE -->
+            <a th:href="@{/candidate/interviews}"
+               class="btn btn-outline-success mt-3">
+
+                <i class="bi bi-calendar-check me-1"></i>
+                View All My Interviews
+
+            </a>
+
+        </div>
+
+        <hr class="my-4">
+
+        <!-- VIEW JOB DETAILS -->
+        <a th:if="${jobApp.job.status == 'ACTIVE'
+                  and jobApp.job.applicationDeadline != null
+                  and !jobApp.job.applicationDeadline.isBefore(
+                      T(java.time.LocalDate).now())}"
+           th:href="@{/candidate/jobs/{id}(id=${jobApp.job.id})}"
+           class="btn btn-outline-primary">
+
+            <i class="bi bi-eye me-1"></i>
+            View Job Details
+
+        </a>
+
+        <span th:unless="${jobApp.job.status == 'ACTIVE'
+                        and jobApp.job.applicationDeadline != null
+                        and !jobApp.job.applicationDeadline.isBefore(
+                            T(java.time.LocalDate).now())}"
+              class="text-muted small">
+
+            Job details are no longer available
+            through the active job listing.
+
+        </span>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

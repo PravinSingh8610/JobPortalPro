@@ -1,0 +1,847 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Reports & Analytics | JobPortalPro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f4f7fb;
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background: #172554;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .brand {
+            font-size: 23px;
+            font-weight: bold;
+            margin-bottom: 35px;
+            white-space: nowrap;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 13px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            transition: .3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .main-content {
+            padding: 25px 30px;
+            min-width: 0;
+        }
+
+        .page-title,
+        .section-heading,
+        .chart-heading {
+            color: #172554;
+            font-weight: 700;
+        }
+
+        .top-bar,
+        .summary-card,
+        .performance-card,
+        .chart-card,
+        .filter-card {
+            background: white;
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.05);
+        }
+
+        .top-bar {
+            padding: 22px;
+            margin-bottom: 25px;
+        }
+
+        /* IMPORTANT: filter-card ki fixed/full height hata di gayi hai */
+        .filter-card {
+            padding: 20px;
+            margin-bottom: 25px;
+            height: auto;
+        }
+
+        .summary-card,
+        .performance-card,
+        .chart-card {
+            padding: 20px;
+            height: 100%;
+        }
+
+        .summary-card {
+            transition: .3s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 22px rgba(0,0,0,.09);
+        }
+
+        .summary-label {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .summary-number {
+            font-size: 27px;
+            font-weight: 700;
+            color: #172554;
+            margin: 0;
+        }
+
+        .summary-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 21px;
+            flex-shrink: 0;
+        }
+
+        .icon-blue { background: #dbeafe; color: #2563eb; }
+        .icon-green { background: #dcfce7; color: #16a34a; }
+        .icon-orange { background: #fef3c7; color: #d97706; }
+        .icon-red { background: #fee2e2; color: #dc2626; }
+        .icon-purple { background: #ede9fe; color: #7c3aed; }
+        .icon-cyan { background: #cffafe; color: #0891b2; }
+
+        .section-heading {
+            margin: 25px 0 16px;
+        }
+
+        .performance-value {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .chart-heading {
+            font-size: 17px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 7px;
+        }
+
+        .date-stat-card {
+            border-left: 4px solid #2563eb;
+        }
+
+        .date-stat-card.interviews { border-left-color: #7c3aed; }
+        .date-stat-card.offers { border-left-color: #0891b2; }
+        .date-stat-card.onboardings { border-left-color: #16a34a; }
+
+        .date-range-text {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .export-buttons .btn {
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        footer {
+            font-size: 14px;
+        }
+
+        @media (max-width: 767px) {
+            .sidebar {
+                min-height: auto;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .brand {
+                margin-bottom: 20px;
+            }
+
+            .summary-number {
+                font-size: 23px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- SIDEBAR -->
+        <div class="col-md-2 sidebar">
+
+            <div class="brand">
+                <i class="fa-solid fa-briefcase"></i>
+                JobPortalPro
+            </div>
+
+            <a th:href="@{/admin/dashboard}">
+                <i class="fa-solid fa-gauge me-2"></i> Dashboard
+            </a>
+
+            <a th:href="@{/admin/candidates}">
+                <i class="fa-solid fa-users me-2"></i> Candidates
+            </a>
+
+            <a th:href="@{/admin/recruiters}">
+                <i class="fa-solid fa-user-tie me-2"></i> Recruiters
+            </a>
+
+            <a th:href="@{/admin/jobs}">
+                <i class="fa-solid fa-briefcase me-2"></i> Jobs
+            </a>
+
+            <a th:href="@{/admin/applications}">
+                <i class="fa-solid fa-file-lines me-2"></i> Applications
+            </a>
+
+            <a th:href="@{/admin/interviews}">
+                <i class="fa-solid fa-calendar-check me-2"></i> Interviews
+            </a>
+
+            <a th:href="@{/admin/offers}">
+                <i class="fa-solid fa-envelope-open-text me-2"></i> Offers
+            </a>
+
+            <a th:href="@{/admin/onboarding}">
+                <i class="fa-solid fa-user-check me-2"></i> Onboarding
+            </a>
+
+            <a th:href="@{/admin/reports}" class="active">
+                <i class="fa-solid fa-chart-pie me-2"></i> Reports & Analytics
+            </a>
+
+            <hr>
+
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-outline-light w-100">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+                </button>
+            </form>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="col-md-10 main-content">
+
+            <!-- HEADER -->
+            <div class="top-bar d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h2 class="page-title mb-1">Reports & Analytics</h2>
+                    <p class="text-muted mb-0">
+                        Monitor your JobPortalPro platform performance.
+                    </p>
+                </div>
+
+                <span class="badge text-bg-primary p-2">
+                    <i class="fa-solid fa-chart-line me-1"></i> Admin Analytics
+                </span>
+            </div>
+
+            <!-- DATE FILTER -->
+            <h5 class="section-heading">
+                <i class="fa-solid fa-calendar-days me-2"></i>
+                Date-wise Reports
+            </h5>
+
+            <div class="filter-card">
+
+                <form th:action="@{/admin/reports}" method="get" id="reportFilterForm">
+                    <div class="row g-3 align-items-end">
+
+                        <div class="col-lg-3 col-md-6">
+                            <label class="filter-label" for="filter">Select Date Filter</label>
+
+                            <select class="form-select" name="filter" id="filter">
+                                <option value="TODAY" th:selected="${filter == 'TODAY'}">Today</option>
+                                <option value="YESTERDAY" th:selected="${filter == 'YESTERDAY'}">Yesterday</option>
+                                <option value="THIS_WEEK" th:selected="${filter == 'THIS_WEEK'}">This Week</option>
+                                <option value="THIS_MONTH" th:selected="${filter == 'THIS_MONTH'}">This Month</option>
+                                <option value="CUSTOM" th:selected="${filter == 'CUSTOM'}">Custom Date Range</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 custom-date">
+                            <label class="filter-label" for="startDate">From Date</label>
+                            <input type="date" class="form-control" name="startDate"
+                                   id="startDate" th:value="${startDate}">
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 custom-date">
+                            <label class="filter-label" for="endDate">To Date</label>
+                            <input type="date" class="form-control" name="endDate"
+                                   id="endDate" th:value="${endDate}">
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fa-solid fa-filter me-2"></i> Apply Filter
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="mt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+                    <p class="date-range-text mb-0">
+                        <i class="fa-solid fa-calendar-check me-1"></i>
+                        Showing report from
+                        <strong th:text="${startDate}"></strong>
+                        to
+                        <strong th:text="${endDate}"></strong>
+                    </p>
+
+                    <div class="export-buttons">
+                        <a th:href="@{/admin/reports/export/csv(startDate=${startDate},endDate=${endDate})}"
+                           class="btn btn-outline-success btn-sm">
+                            <i class="fa-solid fa-file-csv me-1"></i> Export CSV
+                        </a>
+
+                        <a th:href="@{/admin/reports/export/pdf(startDate=${startDate},endDate=${endDate})}"
+                           class="btn btn-outline-danger btn-sm">
+                            <i class="fa-solid fa-file-pdf me-1"></i> Download PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="alert alert-danger mt-3 mb-0"
+                     th:if="${dateError}" th:text="${dateError}">
+                </div>
+            </div>
+
+            <!-- SELECTED PERIOD STATISTICS -->
+            <h5 class="section-heading">
+                <i class="fa-solid fa-chart-column me-2"></i>
+                Selected Period Statistics
+            </h5>
+
+            <div class="row g-3 mb-4">
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="summary-card date-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="summary-label">Applications</p>
+                                <h3 class="summary-number" th:text="${dateApplications}">0</h3>
+                            </div>
+                            <div class="summary-icon icon-blue">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="summary-card date-stat-card interviews">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="summary-label">Interviews</p>
+                                <h3 class="summary-number" th:text="${dateInterviews}">0</h3>
+                            </div>
+                            <div class="summary-icon icon-purple">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="summary-card date-stat-card offers">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="summary-label">Job Offers</p>
+                                <h3 class="summary-number" th:text="${dateOffers}">0</h3>
+                            </div>
+                            <div class="summary-icon icon-cyan">
+                                <i class="fa-solid fa-envelope-open-text"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="summary-card date-stat-card onboardings">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="summary-label">Onboardings</p>
+                                <h3 class="summary-number" th:text="${dateOnboardings}">0</h3>
+                            </div>
+                            <div class="summary-icon icon-green">
+                                <i class="fa-solid fa-user-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLATFORM OVERVIEW -->
+            <h5 class="section-heading">
+                <i class="fa-solid fa-chart-simple me-2"></i>
+                Platform Overview
+            </h5>
+
+            <div class="row g-3 mb-4">
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="summary-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="summary-label">Total Candidates</p>
+                                <h3 class="summary-number" th:text="${totalCandidates}">0</h3>
+                            </div>
+                            <div class="summary-icon icon-blue"><i class="fa-solid fa-users"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="summary-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="summary-label">Total Recruiters</p>
+                                <h3 class="summary-number" th:text="${totalRecruiters}">0</h3>
+                            </div>
+                            <div class="summary-icon icon-green"><i class="fa-solid fa-user-tie"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="summary-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="summary-label">Total Jobs</p>
+                                <h3 class="summary-number" th:text="${totalJobs}">0</h3>
+                            </div>
+                            <div class="summary-icon icon-orange"><i class="fa-solid fa-briefcase"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="summary-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="summary-label">Total Applications</p>
+                                <h3 class="summary-number" th:text="${totalApplications}">0</h3>
+                            </div>
+                            <div class="summary-icon icon-red"><i class="fa-solid fa-file-lines"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="summary-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="summary-label">Total Interviews</p>
+                                <h3 class="summary-number" th:text="${totalInterviews}">0</h3>
+                            </div>
+                            <div class="summary-icon icon-purple"><i class="fa-solid fa-calendar-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="summary-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="summary-label">Total Offers</p>
+                                <h3 class="summary-number" th:text="${totalOffers}">0</h3>
+                            </div>
+                            <div class="summary-icon icon-cyan"><i class="fa-solid fa-envelope-open-text"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="summary-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="summary-label">Total Onboardings</p>
+                                <h3 class="summary-number" th:text="${totalOnboardings}">0</h3>
+                            </div>
+                            <div class="summary-icon icon-green"><i class="fa-solid fa-user-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PERFORMANCE METRICS -->
+            <h5 class="section-heading">
+                <i class="fa-solid fa-bullseye me-2"></i>
+                Performance Metrics
+            </h5>
+
+            <div class="row g-3 mb-4">
+
+                <div class="col-md-6">
+                    <div class="performance-card">
+                        <p class="text-muted mb-2">
+                            <i class="fa-solid fa-envelope-circle-check me-2"></i>
+                            Offer Acceptance Rate
+                        </p>
+
+                        <h3 class="performance-value text-success">
+                            <span th:text="${#numbers.formatDecimal(offerAcceptanceRate,1,2)}">0</span>%
+                        </h3>
+
+                        <div class="progress" style="height:9px;">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 th:style="'width:' + ${offerAcceptanceRate} + '%'">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="performance-card">
+                        <p class="text-muted mb-2">
+                            <i class="fa-solid fa-user-check me-2"></i>
+                            Onboarding Approval Rate
+                        </p>
+
+                        <h3 class="performance-value text-primary">
+                            <span th:text="${#numbers.formatDecimal(onboardingApprovalRate,1,2)}">0</span>%
+                        </h3>
+
+                        <div class="progress" style="height:9px;">
+                            <div class="progress-bar bg-primary" role="progressbar"
+                                 th:style="'width:' + ${onboardingApprovalRate} + '%'">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETAILED ANALYTICS -->
+            <h5 class="section-heading">
+                <i class="fa-solid fa-chart-pie me-2"></i>
+                Detailed Analytics
+            </h5>
+
+            <div class="row g-4">
+
+                <div class="col-lg-6">
+                    <div class="chart-card">
+                        <h5 class="chart-heading">
+                            <i class="fa-solid fa-file-lines text-primary me-2"></i>
+                            Application Statistics
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="applicationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="chart-card">
+                        <h5 class="chart-heading">
+                            <i class="fa-solid fa-calendar-check text-success me-2"></i>
+                            Interview Statistics
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="interviewChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="chart-card">
+                        <h5 class="chart-heading">
+                            <i class="fa-solid fa-trophy text-warning me-2"></i>
+                            Interview Results
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="resultChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="chart-card">
+                        <h5 class="chart-heading">
+                            <i class="fa-solid fa-envelope-open-text text-info me-2"></i>
+                            Job Offer Statistics
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="offerChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="chart-card">
+                        <h5 class="chart-heading">
+                            <i class="fa-solid fa-user-check text-success me-2"></i>
+                            Onboarding Statistics
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="onboardingChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="text-center text-muted mt-5 mb-3">
+                © 2026 JobPortalPro | Admin Reports & Analytics
+            </footer>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function () {
+
+    // DATE FILTER
+    const filter = document.getElementById("filter");
+    const customDateFields = document.querySelectorAll(".custom-date");
+    const startDateInput = document.getElementById("startDate");
+    const endDateInput = document.getElementById("endDate");
+    const reportFilterForm = document.getElementById("reportFilterForm");
+
+    function updateDateFields() {
+        const isCustom = filter.value === "CUSTOM";
+
+        customDateFields.forEach(function (field) {
+            field.style.display = isCustom ? "" : "none";
+        });
+
+        startDateInput.required = isCustom;
+        endDateInput.required = isCustom;
+    }
+
+    filter.addEventListener("change", updateDateFields);
+    updateDateFields();
+
+    // DATE VALIDATION
+    function updateEndDateMinimum() {
+        if (startDateInput.value) {
+            endDateInput.min = startDateInput.value;
+        } else {
+            endDateInput.removeAttribute("min");
+        }
+    }
+
+    startDateInput.addEventListener("change", updateEndDateMinimum);
+    updateEndDateMinimum();
+
+    reportFilterForm.addEventListener("submit", function (event) {
+        if (filter.value === "CUSTOM") {
+            if (!startDateInput.value || !endDateInput.value) {
+                event.preventDefault();
+                alert("Please select both From Date and To Date.");
+                return;
+            }
+
+            if (startDateInput.value > endDateInput.value) {
+                event.preventDefault();
+                alert("From Date cannot be after To Date.");
+            }
+        }
+    });
+
+    // CHART DATA FROM THYMELEAF
+    const applicationData = [
+        /*[[${appliedApplications}]]*/ 0,
+        /*[[${shortlistedApplications}]]*/ 0,
+        /*[[${rejectedApplications}]]*/ 0
+    ];
+
+    const interviewData = [
+        /*[[${scheduledInterviews}]]*/ 0,
+        /*[[${completedInterviews}]]*/ 0,
+        /*[[${cancelledInterviews}]]*/ 0
+    ];
+
+    const resultData = [
+        /*[[${selectedResults}]]*/ 0,
+        /*[[${rejectedResults}]]*/ 0,
+        /*[[${onHoldResults}]]*/ 0
+    ];
+
+    const offerData = [
+        /*[[${pendingOffers}]]*/ 0,
+        /*[[${acceptedOffers}]]*/ 0,
+        /*[[${rejectedOffers}]]*/ 0,
+        /*[[${expiredOffers}]]*/ 0
+    ];
+
+    const onboardingData = [
+        /*[[${pendingOnboardings}]]*/ 0,
+        /*[[${underReviewOnboardings}]]*/ 0,
+        /*[[${approvedOnboardings}]]*/ 0,
+        /*[[${rejectedOnboardings}]]*/ 0
+    ];
+
+    if (typeof Chart === "undefined") {
+        console.error("Chart.js library is not loaded.");
+        return;
+    }
+
+    function convertToNumbers(values) {
+        return values.map(function (value) {
+            const number = Number(value);
+            return Number.isFinite(number) && number > 0 ? number : 0;
+        });
+    }
+
+    function createChart(id, type, labels, values, colors) {
+        const canvas = document.getElementById(id);
+
+        if (!canvas) {
+            console.error("Canvas not found: " + id);
+            return false;
+        }
+
+        const existingChart = Chart.getChart(canvas);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        new Chart(canvas, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Total Records",
+                    data: convertToNumbers(values),
+                    backgroundColor: colors,
+                    borderColor: "#ffffff",
+                    borderWidth: 2,
+                    borderRadius: type === "bar" ? 6 : 0,
+                    hoverOffset: type === "doughnut" ? 12 : 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: type !== "bar",
+                        position: "bottom"
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                },
+                scales: type === "bar" ? {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                } : {}
+            }
+        });
+
+        return true;
+    }
+
+    const chartResults = [
+        createChart(
+            "applicationChart",
+            "doughnut",
+            ["Applied", "Shortlisted", "Rejected"],
+            applicationData,
+            ["#3b82f6", "#22c55e", "#ef4444"]
+        ),
+
+        createChart(
+            "interviewChart",
+            "bar",
+            ["Scheduled", "Completed", "Cancelled"],
+            interviewData,
+            ["#3b82f6", "#22c55e", "#ef4444"]
+        ),
+
+        createChart(
+            "resultChart",
+            "pie",
+            ["Selected", "Rejected", "On Hold"],
+            resultData,
+            ["#22c55e", "#ef4444", "#f59e0b"]
+        ),
+
+        createChart(
+            "offerChart",
+            "doughnut",
+            ["Pending", "Accepted", "Rejected", "Expired"],
+            offerData,
+            ["#f59e0b", "#22c55e", "#ef4444", "#64748b"]
+        ),
+
+        createChart(
+            "onboardingChart",
+            "bar",
+            ["Pending", "Under Review", "Approved", "Rejected"],
+            onboardingData,
+            ["#f59e0b", "#3b82f6", "#22c55e", "#ef4444"]
+        )
+    ];
+
+    if (chartResults.every(Boolean)) {
+        console.log("All five Admin Analytics Charts initialized successfully.");
+    } else {
+        console.error("Some Admin Analytics Charts could not be initialized.");
+    }
+});
+</script>
+
+</body>
+</html>

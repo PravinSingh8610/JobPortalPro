@@ -1,0 +1,550 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Onboarding Management | JobPortalPro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f1f5f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .sidebar {
+            background: #172554;
+            min-height: 100vh;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .sidebar h4 {
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .page-header {
+            background: linear-gradient(120deg, #1e3a8a, #2563eb);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+
+        .summary-card h3 {
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .table th {
+            white-space: nowrap;
+            background: #f8fafc;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .status-badge {
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-PENDING {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-UNDER_REVIEW {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .status-APPROVED {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-REJECTED {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media (max-width: 767px) {
+            .sidebar {
+                min-height: auto;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- SIDEBAR -->
+        <div class="col-md-3 col-lg-2 sidebar">
+
+            <h4>
+                <i class="bi bi-briefcase-fill"></i>
+                JobPortalPro
+            </h4>
+
+            <a th:href="@{/admin/dashboard}">
+                <i class="bi bi-speedometer2"></i>
+                Dashboard
+            </a>
+
+            <a th:href="@{/admin/candidates}">
+                <i class="bi bi-people"></i>
+                Candidates
+            </a>
+
+            <a th:href="@{/admin/recruiters}">
+                <i class="bi bi-building"></i>
+                Recruiters
+            </a>
+
+            <a th:href="@{/admin/jobs}">
+                <i class="bi bi-briefcase"></i>
+                Jobs
+            </a>
+
+            <a th:href="@{/admin/applications}">
+                <i class="bi bi-file-earmark-text"></i>
+                Applications
+            </a>
+
+            <a th:href="@{/admin/interviews}">
+                <i class="bi bi-calendar-event"></i>
+                Interviews
+            </a>
+
+            <a th:href="@{/admin/offers}">
+                <i class="bi bi-envelope-check"></i>
+                Job Offers
+            </a>
+
+            <a class="active" th:href="@{/admin/onboarding}">
+                <i class="bi bi-person-check"></i>
+                Onboarding
+            </a>
+
+            <hr>
+
+            <form th:action="@{/logout}" method="post">
+                <button class="btn btn-outline-light w-100"
+                        type="submit">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+                </button>
+            </form>
+
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="col-md-9 col-lg-10 main-content">
+
+            <div class="page-header">
+                <h2 class="fw-bold">
+                    <i class="bi bi-person-check-fill"></i>
+                    Admin Onboarding Management
+                </h2>
+
+                <p class="mb-1">
+                    Monitor candidate onboarding and recruiter approvals.
+                </p>
+
+                <small>
+                    Logged in as:
+                    <span th:text="${adminEmail}">admin@example.com</span>
+                </small>
+            </div>
+
+            <!-- SUMMARY CARDS -->
+            <div class="row g-3 mb-4">
+
+                <div class="col-md-6 col-xl">
+                    <div class="summary-card">
+                        <p class="text-muted">Total Onboardings</p>
+                        <h3 th:text="${totalOnboardings}">0</h3>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl">
+                    <div class="summary-card">
+                        <p class="text-muted">Pending</p>
+                        <h3 class="text-warning"
+                            th:text="${pendingOnboardings}">0</h3>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl">
+                    <div class="summary-card">
+                        <p class="text-muted">Under Review</p>
+                        <h3 class="text-primary"
+                            th:text="${underReviewOnboardings}">0</h3>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl">
+                    <div class="summary-card">
+                        <p class="text-muted">Approved</p>
+                        <h3 class="text-success"
+                            th:text="${approvedOnboardings}">0</h3>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl">
+                    <div class="summary-card">
+                        <p class="text-muted">Rejected</p>
+                        <h3 class="text-danger"
+                            th:text="${rejectedOnboardings}">0</h3>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SEARCH AND FILTER -->
+            <div class="table-container">
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-7">
+                        <input type="text"
+                               id="searchInput"
+                               class="form-control"
+                               placeholder="Search candidate, company, job...">
+                    </div>
+
+                    <div class="col-md-5">
+                        <select id="statusFilter"
+                                class="form-select">
+
+                            <option value="">All Statuses</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="UNDER_REVIEW">Under Review</option>
+                            <option value="APPROVED">Approved</option>
+                            <option value="REJECTED">Rejected</option>
+
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle"
+                           id="onboardingTable">
+
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Candidate</th>
+                            <th>Company</th>
+                            <th>Job</th>
+                            <th>Joining Date</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+
+                        <tr th:each="onboarding : ${onboardings}"
+                            th:attr="data-status=${onboarding.status}">
+
+                            <td th:text="${onboarding.id}">1</td>
+
+                            <td th:text="${onboarding.jobOffer.interview.application.candidate.fullName}">
+                                Candidate Name
+                            </td>
+
+                            <td th:text="${onboarding.jobOffer.interview.application.job.company.companyName}">
+                                Company Name
+                            </td>
+
+                            <td th:text="${onboarding.jobOffer.interview.application.job.title}">
+                                Job Title
+                            </td>
+
+                            <td th:text="${onboarding.jobOffer.joiningDate}">
+                                2026-11-28
+                            </td>
+
+                            <td>
+                                <span class="status-badge"
+                                      th:classappend="${' status-' + onboarding.status}"
+                                      th:text="${onboarding.status}">
+                                    PENDING
+                                </span>
+                            </td>
+
+                            <td th:text="${#temporals.format(onboarding.createdAt, 'dd MMM yyyy')}">
+                                28 Oct 2026
+                            </td>
+
+                            <td>
+                                <button type="button"
+                                        class="btn btn-sm btn-primary"
+                                        data-bs-toggle="modal"
+                                        th:attr="data-bs-target=${'#detailsModal' + onboarding.id}">
+                                    <i class="bi bi-eye"></i>
+                                    View
+                                </button>
+                            </td>
+
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(onboardings)}">
+                            <td colspan="8"
+                                class="text-center text-muted py-4">
+                                No onboarding records found.
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <p id="noFilterResults"
+                   class="text-center text-muted mt-3 d-none">
+                    No matching onboarding records found.
+                </p>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- DETAILS MODALS -->
+<div th:each="onboarding : ${onboardings}">
+
+    <div class="modal fade"
+         th:id="${'detailsModal' + onboarding.id}"
+         tabindex="-1"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-vcard"></i>
+                        Onboarding Details
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <h6 class="text-primary fw-bold">
+                        Candidate Information
+                    </h6>
+
+                    <p>
+                        <strong>Name:</strong>
+                        <span th:text="${onboarding.jobOffer.interview.application.candidate.fullName}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Email:</strong>
+                        <span th:text="${onboarding.jobOffer.interview.application.candidate.email}"></span>
+                    </p>
+
+                    <hr>
+
+                    <h6 class="text-primary fw-bold">
+                        Job & Offer Information
+                    </h6>
+
+                    <p>
+                        <strong>Company:</strong>
+                        <span th:text="${onboarding.jobOffer.interview.application.job.company.companyName}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Job:</strong>
+                        <span th:text="${onboarding.jobOffer.interview.application.job.title}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Designation:</strong>
+                        <span th:text="${onboarding.jobOffer.designation}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Offered Salary:</strong>
+                        ₹<span th:text="${onboarding.jobOffer.offeredSalary}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Joining Date:</strong>
+                        <span th:text="${onboarding.jobOffer.joiningDate}"></span>
+                    </p>
+
+                    <hr>
+
+                    <h6 class="text-primary fw-bold">
+                        Onboarding Information
+                    </h6>
+
+                    <p>
+                        <strong>Status:</strong>
+                        <span th:text="${onboarding.status}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Created At:</strong>
+                        <span th:text="${onboarding.createdAt != null ? #temporals.format(onboarding.createdAt, 'dd MMM yyyy HH:mm') : '-'}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Submitted At:</strong>
+                        <span th:text="${onboarding.submittedAt != null ? #temporals.format(onboarding.submittedAt, 'dd MMM yyyy HH:mm') : 'Not Submitted'}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Reviewed At:</strong>
+                        <span th:text="${onboarding.reviewedAt != null ? #temporals.format(onboarding.reviewedAt, 'dd MMM yyyy HH:mm') : 'Not Reviewed'}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Completed At:</strong>
+                        <span th:text="${onboarding.completedAt != null ? #temporals.format(onboarding.completedAt, 'dd MMM yyyy HH:mm') : 'Not Completed'}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Recruiter Remarks:</strong>
+                        <span th:text="${onboarding.recruiterRemarks != null and !#strings.isEmpty(onboarding.recruiterRemarks) ? onboarding.recruiterRemarks : 'No remarks available'}"></span>
+                    </p>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+
+    function filterOnboardings() {
+
+        const search = searchInput.value.toLowerCase().trim();
+        const status = statusFilter.value;
+
+        const rows = document.querySelectorAll(
+            '#onboardingTable tbody tr[data-status]'
+        );
+
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+
+            const rowText = row.innerText.toLowerCase();
+            const rowStatus = row.dataset.status;
+
+            const matchesSearch = rowText.includes(search);
+            const matchesStatus = !status || rowStatus === status;
+
+            const visible = matchesSearch && matchesStatus;
+
+            row.style.display = visible ? '' : 'none';
+
+            if (visible) {
+                visibleCount++;
+            }
+        });
+
+        const noResults = document.getElementById('noFilterResults');
+
+        if (rows.length > 0 && visibleCount === 0) {
+            noResults.classList.remove('d-none');
+        } else {
+            noResults.classList.add('d-none');
+        }
+    }
+
+    searchInput.addEventListener('input', filterOnboardings);
+    statusFilter.addEventListener('change', filterOnboardings);
+</script>
+
+</body>
+</html>

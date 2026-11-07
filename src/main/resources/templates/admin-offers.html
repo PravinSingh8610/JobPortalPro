@@ -1,0 +1,808 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Admin Job Offers | JobPortalPro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #172554;
+            --blue: #2563eb;
+            --bg: #f4f6fb;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #1e293b;
+        }
+
+        .sidebar {
+            background: var(--navy);
+            min-height: 100vh;
+            padding: 25px 15px;
+            position: sticky;
+            top: 0;
+            align-self: flex-start;
+        }
+
+        .brand {
+            color: white;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 35px;
+        }
+
+        .menu-label {
+            color: #93a4c5;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin: 25px 12px 12px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            margin-bottom: 6px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: .2s ease;
+        }
+
+        .menu-link:hover {
+            background: #263f85;
+            color: white;
+        }
+
+        .menu-link.active {
+            background: var(--blue);
+            color: white;
+            font-weight: 600;
+        }
+
+        .menu-link.disabled-link {
+            opacity: .55;
+            cursor: default;
+        }
+
+        .menu-link.disabled-link:hover {
+            background: transparent;
+        }
+
+        .menu-external {
+            margin-left: auto;
+            font-size: 12px;
+            opacity: .65;
+        }
+
+        .menu-soon {
+            margin-left: auto;
+            font-size: 10px;
+        }
+
+        .main-content {
+            padding: 35px;
+            min-width: 0;
+        }
+
+        .page-header {
+            background: linear-gradient(120deg, #1e3a8a, #2563eb);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.05);
+            height: 100%;
+        }
+
+        .stat-card .stat-icon {
+            font-size: 25px;
+            margin-bottom: 12px;
+            color: #2563eb;
+        }
+
+        .stat-card h3 {
+            font-size: 30px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .stat-card p {
+            color: #64748b;
+            font-weight: 600;
+            margin: 8px 0 0;
+            font-size: 13px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.05);
+        }
+
+        .table thead th {
+            background: #eff6ff;
+            color: #1e40af;
+            font-size: 12px;
+            white-space: nowrap;
+            padding: 14px;
+        }
+
+        .table tbody td {
+            padding: 14px;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-PENDING {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-ACCEPTED {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-REJECTED {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-EXPIRED {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .status-OTHER {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .modal-detail-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .modal-detail-value {
+            font-size: 14px;
+            color: #1e293b;
+            overflow-wrap: anywhere;
+        }
+
+        .detail-box {
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 9px;
+            height: 100%;
+        }
+
+        .logout-btn {
+            width: 100%;
+            margin-top: 18px;
+        }
+
+        @media (max-width: 767px) {
+            .sidebar {
+                min-height: auto;
+                position: static;
+            }
+
+            .main-content {
+                padding: 18px;
+            }
+
+            .page-header {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- SIDEBAR -->
+        <div class="col-md-3 col-lg-2 sidebar">
+
+            <div class="brand">
+                <i class="bi bi-briefcase-fill"></i>
+                JobPortalPro
+            </div>
+
+            <div class="menu-label">MAIN MENU</div>
+
+            <a th:href="@{/admin/dashboard}"
+               target="_blank"
+               rel="noopener"
+               class="menu-link">
+                <i class="bi bi-grid-1x2-fill"></i>
+                Dashboard
+                <i class="bi bi-box-arrow-up-right menu-external"></i>
+            </a>
+
+            <div class="menu-label">USER MANAGEMENT</div>
+
+            <a th:href="@{/admin/candidates}"
+               target="_blank"
+               rel="noopener"
+               class="menu-link">
+                <i class="bi bi-people-fill"></i>
+                Manage Candidates
+            </a>
+
+            <a th:href="@{/admin/recruiters}"
+               target="_blank"
+               rel="noopener"
+               class="menu-link">
+                <i class="bi bi-building"></i>
+                Manage Recruiters
+            </a>
+
+            <div class="menu-label">RECRUITMENT</div>
+
+            <a th:href="@{/admin/jobs}"
+               target="_blank"
+               rel="noopener"
+               class="menu-link">
+                <i class="bi bi-briefcase-fill"></i>
+                Manage Jobs
+            </a>
+
+            <a th:href="@{/admin/applications}"
+               target="_blank"
+               rel="noopener"
+               class="menu-link">
+                <i class="bi bi-file-earmark-person"></i>
+                Applications
+            </a>
+
+            <a th:href="@{/admin/interviews}"
+               target="_blank"
+               rel="noopener"
+               class="menu-link">
+                <i class="bi bi-camera-video"></i>
+                Interviews
+            </a>
+
+            <a th:href="@{/admin/offers}"
+               class="menu-link active">
+                <i class="bi bi-envelope-check"></i>
+                Job Offers
+            </a>
+
+            <span class="menu-link disabled-link">
+                <i class="bi bi-person-check"></i>
+                Onboarding
+                <span class="badge bg-secondary menu-soon">Soon</span>
+            </span>
+
+            <div class="menu-label">ANALYTICS</div>
+
+            <span class="menu-link disabled-link">
+                <i class="bi bi-bar-chart-line"></i>
+                Reports &amp; Analytics
+                <span class="badge bg-secondary menu-soon">Soon</span>
+            </span>
+
+            <hr class="border-secondary mt-4">
+
+            <form th:action="@{/logout}" method="post">
+                <button type="submit"
+                        class="btn btn-danger logout-btn">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Logout
+                </button>
+            </form>
+
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <main class="col-md-9 col-lg-10 main-content">
+
+            <!-- HEADER -->
+            <div class="page-header">
+                <h2 class="fw-bold mb-2">
+                    <i class="bi bi-envelope-check me-2"></i>
+                    Job Offer Management
+                </h2>
+
+                <p class="mb-2">
+                    Monitor job offers issued across the platform.
+                </p>
+
+                <small>
+                    Logged in as:
+                    <strong th:text="${adminEmail}">
+                        admin@example.com
+                    </strong>
+                </small>
+            </div>
+
+            <!-- STATISTICS -->
+            <div class="row g-3 mb-4">
+
+                <div class="col-sm-6 col-xl">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-files"></i>
+                        </div>
+                        <h3 th:text="${totalOffers}">0</h3>
+                        <p>Total Offers</p>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl">
+                    <div class="stat-card">
+                        <div class="stat-icon text-warning">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <h3 th:text="${pendingOffers}">0</h3>
+                        <p>Pending</p>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl">
+                    <div class="stat-card">
+                        <div class="stat-icon text-success">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <h3 th:text="${acceptedOffers}">0</h3>
+                        <p>Accepted</p>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl">
+                    <div class="stat-card">
+                        <div class="stat-icon text-danger">
+                            <i class="bi bi-x-circle"></i>
+                        </div>
+                        <h3 th:text="${rejectedOffers}">0</h3>
+                        <p>Rejected</p>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl">
+                    <div class="stat-card">
+                        <div class="stat-icon text-secondary">
+                            <i class="bi bi-calendar-x"></i>
+                        </div>
+                        <h3 th:text="${expiredOffers}">0</h3>
+                        <p>Expired</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- OFFERS TABLE -->
+            <div class="table-card">
+
+                <div class="d-flex flex-wrap justify-content-between
+                            align-items-center gap-3 mb-4">
+
+                    <h4 class="fw-bold mb-0">
+                        All Job Offers
+                    </h4>
+
+                    <span class="badge bg-primary"
+                          id="visibleCount">
+                        0 Offers
+                    </span>
+                </div>
+
+                <!-- SEARCH AND FILTER -->
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-8">
+                        <input type="search"
+                               id="offerSearch"
+                               class="form-control"
+                               placeholder="Search candidate, company, job, designation...">
+                    </div>
+
+                    <div class="col-md-4">
+                        <select id="statusFilter"
+                                class="form-select">
+                            <option value="">All Status</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="ACCEPTED">Accepted</option>
+                            <option value="REJECTED">Rejected</option>
+                            <option value="EXPIRED">Expired</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+                        <tr>
+                            <th>Offer ID</th>
+                            <th>Candidate</th>
+                            <th>Company</th>
+                            <th>Job / Designation</th>
+                            <th>Offered Salary</th>
+                            <th>Joining Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="offersTableBody">
+
+                        <tr th:each="offer : ${offers}"
+                            class="offer-row"
+                            th:attr="data-status=${offer.status}">
+
+                            <td>
+                                <strong th:text="${offer.id}">
+                                    1
+                                </strong>
+                            </td>
+
+                            <td>
+                                <div class="fw-semibold"
+                                     th:text="${offer.interview.application.candidate.fullName}">
+                                    Candidate
+                                </div>
+                                <small class="text-muted"
+                                       th:text="${offer.interview.application.candidate.email}">
+                                    candidate@example.com
+                                </small>
+                            </td>
+
+                            <td th:text="${offer.interview.application.job.company.companyName}">
+                                Company
+                            </td>
+
+                            <td>
+                                <div class="fw-semibold"
+                                     th:text="${offer.interview.application.job.title}">
+                                    Job Title
+                                </div>
+                                <small class="text-muted"
+                                       th:text="${offer.designation}">
+                                    Designation
+                                </small>
+                            </td>
+
+                            <td class="fw-semibold"
+                                th:text="${offer.offeredSalary}">
+                                0.00
+                            </td>
+
+                            <td th:text="${#temporals.format(offer.joiningDate, 'dd MMM yyyy')}">
+                                01 Jan 2027
+                            </td>
+
+                            <td>
+                                <span class="status-badge"
+                                      th:classappend="${offer.status == 'PENDING' ? 'status-PENDING' :
+                                                       offer.status == 'ACCEPTED' ? 'status-ACCEPTED' :
+                                                       offer.status == 'REJECTED' ? 'status-REJECTED' :
+                                                       offer.status == 'EXPIRED' ? 'status-EXPIRED' :
+                                                       'status-OTHER'}"
+                                      th:text="${offer.status}">
+                                    PENDING
+                                </span>
+                            </td>
+
+                            <td>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary view-offer-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#offerDetailsModal"
+                                        th:attr="
+                                            data-id=${offer.id},
+                                            data-candidate=${offer.interview.application.candidate.fullName},
+                                            data-email=${offer.interview.application.candidate.email},
+                                            data-company=${offer.interview.application.job.company.companyName},
+                                            data-job=${offer.interview.application.job.title},
+                                            data-designation=${offer.designation},
+                                            data-salary=${offer.offeredSalary},
+                                            data-joining=${offer.joiningDate},
+                                            data-expiry=${offer.offerExpiryDate},
+                                            data-status=${offer.status},
+                                            data-created=${offer.createdAt},
+                                            data-responded=${offer.respondedAt},
+                                            data-message=${offer.offerMessage}">
+                                    <i class="bi bi-eye me-1"></i>
+                                    View
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(offers)}"
+                            id="emptyDatabaseRow">
+                            <td colspan="8"
+                                class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                No job offers have been issued yet.
+                            </td>
+                        </tr>
+
+                        <tr id="noFilterResults"
+                            class="d-none">
+                            <td colspan="8"
+                                class="text-center py-4 text-muted">
+                                No offers match your search or filter.
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <p class="text-center text-muted small mt-4">
+                JobPortalPro Admin Panel
+            </p>
+
+        </main>
+    </div>
+</div>
+
+<!-- OFFER DETAILS MODAL -->
+<div class="modal fade"
+     id="offerDetailsModal"
+     tabindex="-1"
+     aria-labelledby="offerDetailsTitle"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="offerDetailsTitle">
+                    <i class="bi bi-file-earmark-check me-2"></i>
+                    Job Offer Details
+                </h5>
+
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Offer ID</div>
+                            <div class="modal-detail-value" id="modalId">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Status</div>
+                            <div class="modal-detail-value" id="modalStatus">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Candidate Name</div>
+                            <div class="modal-detail-value" id="modalCandidate">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Candidate Email</div>
+                            <div class="modal-detail-value" id="modalEmail">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Company</div>
+                            <div class="modal-detail-value" id="modalCompany">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Job Title</div>
+                            <div class="modal-detail-value" id="modalJob">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Designation</div>
+                            <div class="modal-detail-value" id="modalDesignation">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Offered Salary</div>
+                            <div class="modal-detail-value" id="modalSalary">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Joining Date</div>
+                            <div class="modal-detail-value" id="modalJoining">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Offer Expiry Date</div>
+                            <div class="modal-detail-value" id="modalExpiry">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Offer Created At</div>
+                            <div class="modal-detail-value" id="modalCreated">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Candidate Responded At</div>
+                            <div class="modal-detail-value" id="modalResponded">—</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="detail-box">
+                            <div class="modal-detail-label">Offer Message</div>
+                            <div class="modal-detail-value"
+                                 id="modalMessage"
+                                 style="white-space: pre-wrap;">—</div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const searchInput = document.getElementById("offerSearch");
+        const statusFilter = document.getElementById("statusFilter");
+        const rows = Array.from(
+            document.querySelectorAll(".offer-row")
+        );
+
+        const noFilterResults = document.getElementById("noFilterResults");
+        const visibleCount = document.getElementById("visibleCount");
+
+        function filterOffers() {
+            const query = searchInput.value.toLowerCase().trim();
+            const status = statusFilter.value;
+
+            let count = 0;
+
+            rows.forEach(function (row) {
+                const rowText = row.textContent.toLowerCase();
+                const rowStatus = row.dataset.status || "";
+
+                const matchesSearch = rowText.includes(query);
+                const matchesStatus = !status || rowStatus === status;
+
+                const show = matchesSearch && matchesStatus;
+
+                row.classList.toggle("d-none", !show);
+
+                if (show) {
+                    count++;
+                }
+            });
+
+            noFilterResults.classList.toggle(
+                "d-none",
+                count !== 0 || rows.length === 0
+            );
+
+            visibleCount.textContent = count + " Offers";
+        }
+
+        searchInput.addEventListener("input", filterOffers);
+        statusFilter.addEventListener("change", filterOffers);
+
+        filterOffers();
+
+        const modal = document.getElementById("offerDetailsModal");
+
+        modal.addEventListener("show.bs.modal", function (event) {
+
+            const button = event.relatedTarget;
+
+            if (!button) {
+                return;
+            }
+
+            const fields = {
+                modalId: "id",
+                modalCandidate: "candidate",
+                modalEmail: "email",
+                modalCompany: "company",
+                modalJob: "job",
+                modalDesignation: "designation",
+                modalSalary: "salary",
+                modalJoining: "joining",
+                modalExpiry: "expiry",
+                modalStatus: "status",
+                modalCreated: "created",
+                modalResponded: "responded",
+                modalMessage: "message"
+            };
+
+            Object.entries(fields).forEach(function (entry) {
+                const elementId = entry[0];
+                const dataKey = entry[1];
+
+                const value = button.dataset[dataKey];
+
+                document.getElementById(elementId).textContent =
+                    value && value.trim() ? value : "—";
+            });
+        });
+
+    });
+</script>
+
+</body>
+</html>

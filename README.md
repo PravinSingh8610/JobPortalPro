@@ -218,7 +218,8 @@ Recruiter Document Verification
 Screenshots of the application will be added here.
 
 ### 1. Home Page
-![Home Page](screenshots/home.png)
+![Home Page](<img width="1920" height="971" alt="Screenshot 2026-11-07 130610" src="https://github.com/user-attachments/assets/3a703b59-678a-4cef-a084-c7ca0594ade9" />)
+
 
 ### 2. Registration Page
 ![Registration Page](screenshots/register.png)
